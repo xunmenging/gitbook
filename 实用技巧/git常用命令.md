@@ -16,6 +16,22 @@ git commit -m "add README"
 git push -u origin master
 ```
 
+## git clone 带用户名密码
+
+**git使用用户名密码clone的方式：**
+
+```sh
+git clone http://username:password@remote
+```
+
+**eg: username:  abc@qq.com, pwd: test, git地址为git@xxx.com/test.git**
+
+```
+git clone http://abc%40qq.com:test@git@xxx.com/test.git
+```
+
+> 注意：用户名密码中一定要转义 @符号转码后变成了%40
+
 # 推送现有文件夹
 
 ```sh
