@@ -12,7 +12,12 @@
     * [linux常用网络工具](实用技巧/linux常用网络工具.md)
     * [Linux常用服务的部署](实用技巧/linux常用服务的部署.md)
     * [git 常用命令](实用技巧/git常用命令.md)
+    * [vs编辑器](实用技巧/vs编辑器.md)
+    * [window运行工具](实用技巧/window运行工具.md)
 * [编程总结](编程总结/README.md)
     * [c++总结](编程总结/c++总结.md)
     * [数据库总结](编程总结/数据库总结.md)
+    * [makefile](编程总结/makefile.md)
+    * [linux基本知识](编程总结/linux基础知识.md)
+    * [shell编程](编程总结/shell编程.md)
 
