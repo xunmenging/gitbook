@@ -53,3 +53,35 @@ git push -u origin --all
 git push -u origin --tags
 ```
 
+修改当前仓库的url
+
+```sh
+git remote set-url origin new_addr
+```
+
+# GitHub如何配置SSH Key
+
+## 检查是否存在SSH Key
+
+```sh
+cd ~/.ssh
+ll //看是否存在 id_rsa 和 id_rsa.pub文件，如果存在，说明已经有SSH Key
+```
+
+如果没有SSH Key，则需要先生成一下
+
+```git
+ssh-keygen -t rsa -C "xcli2018@126.com"
+```
+
+## 获取SSH Key
+
+```git
+cat id_rsa.pub //拷贝秘钥 ssh-rsa开头
+```
+
+## GitHub添加SSH Key
+
+```
+取个名字，把之前拷贝的秘钥复制进去，添加就好啦。
+```
