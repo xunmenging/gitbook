@@ -29,3 +29,16 @@ GitBook version: 3.2.3
 
 1. gitbook init初始化
 2. gitbook serve 开启服务
+
+# typora使用
+
+## 常用快捷键
+
+- ctrl+l：选中行
+- ctrl+shift+]：无序列表
+- ctrl+shift+[：有序列表
+- ctrl+shift+k：插入代码段
+- ctrl+shift+q：插入引用
+- ctrl+b：加粗
+- ctrl+k：链接引用
+- ctrl+shift+i：插入图片
