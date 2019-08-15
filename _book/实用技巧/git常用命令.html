@@ -4,7 +4,7 @@
     <head>
         <meta charset="UTF-8">
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
-        <title>实用技巧 · GitBook</title>
+        <title>git 常用命令 · GitBook</title>
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta name="description" content="">
         <meta name="generator" content="GitBook 3.2.3">
@@ -57,10 +57,10 @@
     <link rel="shortcut icon" href="../gitbook/images/favicon.ico" type="image/x-icon">
 
     
-    <link rel="next" href="网络抓包.html" />
+    <link rel="next" href="vs编辑器.html" />
     
     
-    <link rel="prev" href="../程序设计与架构/大规模C++程序设计.html" />
+    <link rel="prev" href="linux常用服务的部署.html" />
     
 
     </head>
@@ -179,7 +179,7 @@
             
         </li>
     
-        <li class="chapter active" data-level="1.4" data-path="./">
+        <li class="chapter " data-level="1.4" data-path="./">
             
                 <a href="./">
             
@@ -245,7 +245,7 @@
             
         </li>
     
-        <li class="chapter " data-level="1.4.5" data-path="git常用命令.html">
+        <li class="chapter active" data-level="1.4.5" data-path="git常用命令.html">
             
                 <a href="git常用命令.html">
             
@@ -403,7 +403,7 @@
     <!-- Title -->
     <h1>
         <i class="fa fa-circle-o-notch fa-spin"></i>
-        <a href=".." >实用技巧</a>
+        <a href=".." >git 常用命令</a>
     </h1>
 </div>
 
@@ -418,8 +418,59 @@
     
                                 <section class="normal markdown-section">
                                 
-                                <h1 id="&#x5B9E;&#x7528;&#x6280;&#x5DE7;">&#x5B9E;&#x7528;&#x6280;&#x5DE7;</h1>
-
+                                <h1 id="git-&#x5168;&#x5C40;&#x8BBE;&#x7F6E;">Git &#x5168;&#x5C40;&#x8BBE;&#x7F6E;</h1>
+<pre><code class="lang-shell">git config --global user.name &quot;&#x674E;&#x661F;&#x8FB0;&quot; 
+git config --global user.email &quot;lixingchen@ut.cn&quot;
+</code></pre>
+<h1 id="&#x521B;&#x5EFA;&#x4E00;&#x4E2A;&#x65B0;&#x4ED3;&#x5E93;">&#x521B;&#x5EFA;&#x4E00;&#x4E2A;&#x65B0;&#x4ED3;&#x5E93;</h1>
+<pre><code class="lang-sh">git <span class="hljs-built_in">clone</span> ssh://git@gitlab.utcook.com:10022/language_v3.2/language_core/vmexecute.git 
+<span class="hljs-built_in">cd</span> vmexecute 
+touch README.md 
+git add README.md 
+git commit -m <span class="hljs-string">&quot;add README&quot;</span> 
+git push -u origin master
+</code></pre>
+<h2 id="git-clone-&#x5E26;&#x7528;&#x6237;&#x540D;&#x5BC6;&#x7801;">git clone &#x5E26;&#x7528;&#x6237;&#x540D;&#x5BC6;&#x7801;</h2>
+<p><strong>git&#x4F7F;&#x7528;&#x7528;&#x6237;&#x540D;&#x5BC6;&#x7801;clone&#x7684;&#x65B9;&#x5F0F;&#xFF1A;</strong></p>
+<pre><code class="lang-sh">git <span class="hljs-built_in">clone</span> http://username:password@remote
+</code></pre>
+<p><strong>eg: username:  abc@qq.com, pwd: test, git&#x5730;&#x5740;&#x4E3A;git@xxx.com/test.git</strong></p>
+<pre><code>git clone http://abc%40qq.com:test@git@xxx.com/test.git
+</code></pre><blockquote>
+<p>&#x6CE8;&#x610F;&#xFF1A;&#x7528;&#x6237;&#x540D;&#x5BC6;&#x7801;&#x4E2D;&#x4E00;&#x5B9A;&#x8981;&#x8F6C;&#x4E49; @&#x7B26;&#x53F7;&#x8F6C;&#x7801;&#x540E;&#x53D8;&#x6210;&#x4E86;%40</p>
+</blockquote>
+<h1 id="&#x63A8;&#x9001;&#x73B0;&#x6709;&#x6587;&#x4EF6;&#x5939;">&#x63A8;&#x9001;&#x73B0;&#x6709;&#x6587;&#x4EF6;&#x5939;</h1>
+<pre><code class="lang-sh"><span class="hljs-built_in">cd</span> existing_folder 
+git init 
+git remote add origin ssh://git@gitlab.utcook.com:10022/language_v3.2/vmexecute.git 
+git add . 
+git commit -m <span class="hljs-string">&quot;Initial commit&quot;</span> 
+git push -u origin master
+</code></pre>
+<h1 id="&#x63A8;&#x9001;&#x73B0;&#x6709;&#x7684;-git-&#x4ED3;&#x5E93;">&#x63A8;&#x9001;&#x73B0;&#x6709;&#x7684; Git &#x4ED3;&#x5E93;</h1>
+<pre><code class="lang-sh"><span class="hljs-built_in">cd</span> existing_repo 
+git remote rename origin old-origin 
+git remote add origin ssh://git@gitlab.utcook.com:10022/language_v3.2/vmexecute.git
+git push -u origin --all
+git push -u origin --tags
+</code></pre>
+<p>&#x4FEE;&#x6539;&#x5F53;&#x524D;&#x4ED3;&#x5E93;&#x7684;url</p>
+<pre><code class="lang-sh">git remote <span class="hljs-built_in">set</span>-url origin new_addr
+</code></pre>
+<h1 id="github&#x5982;&#x4F55;&#x914D;&#x7F6E;ssh-key">GitHub&#x5982;&#x4F55;&#x914D;&#x7F6E;SSH Key</h1>
+<h2 id="&#x68C0;&#x67E5;&#x662F;&#x5426;&#x5B58;&#x5728;ssh-key">&#x68C0;&#x67E5;&#x662F;&#x5426;&#x5B58;&#x5728;SSH Key</h2>
+<pre><code class="lang-sh"><span class="hljs-built_in">cd</span> ~/.ssh
+ll //&#x770B;&#x662F;&#x5426;&#x5B58;&#x5728; id_rsa &#x548C; id_rsa.pub&#x6587;&#x4EF6;&#xFF0C;&#x5982;&#x679C;&#x5B58;&#x5728;&#xFF0C;&#x8BF4;&#x660E;&#x5DF2;&#x7ECF;&#x6709;SSH Key
+</code></pre>
+<p>&#x5982;&#x679C;&#x6CA1;&#x6709;SSH Key&#xFF0C;&#x5219;&#x9700;&#x8981;&#x5148;&#x751F;&#x6210;&#x4E00;&#x4E0B;</p>
+<pre><code class="lang-git">ssh-keygen -t rsa -C &quot;xcli2018@126.com&quot;
+</code></pre>
+<h2 id="&#x83B7;&#x53D6;ssh-key">&#x83B7;&#x53D6;SSH Key</h2>
+<pre><code class="lang-git">cat id_rsa.pub //&#x62F7;&#x8D1D;&#x79D8;&#x94A5; ssh-rsa&#x5F00;&#x5934;
+</code></pre>
+<h2 id="github&#x6DFB;&#x52A0;ssh-key">GitHub&#x6DFB;&#x52A0;SSH Key</h2>
+<pre><code>&#x53D6;&#x4E2A;&#x540D;&#x5B57;&#xFF0C;&#x628A;&#x4E4B;&#x524D;&#x62F7;&#x8D1D;&#x7684;&#x79D8;&#x94A5;&#x590D;&#x5236;&#x8FDB;&#x53BB;&#xFF0C;&#x6DFB;&#x52A0;&#x5C31;&#x597D;&#x5566;&#x3002;
+</code></pre>
                                 
                                 </section>
                             
@@ -446,12 +497,12 @@
 
             
                 
-                <a href="../程序设计与架构/大规模C++程序设计.html" class="navigation navigation-prev " aria-label="Previous page: 大规模C++程序设计">
+                <a href="linux常用服务的部署.html" class="navigation navigation-prev " aria-label="Previous page: Linux常用服务的部署">
                     <i class="fa fa-angle-left"></i>
                 </a>
                 
                 
-                <a href="网络抓包.html" class="navigation navigation-next " aria-label="Next page: 网络抓包">
+                <a href="vs编辑器.html" class="navigation navigation-next " aria-label="Next page: vs编辑器">
                     <i class="fa fa-angle-right"></i>
                 </a>
                 
@@ -462,7 +513,7 @@
     <script>
         var gitbook = gitbook || [];
         gitbook.push(function() {
-            gitbook.page.hasChanged({"page":{"title":"实用技巧","level":"1.4","depth":1,"next":{"title":"网络抓包","level":"1.4.1","depth":2,"path":"实用技巧/网络抓包.md","ref":"实用技巧/网络抓包.md","articles":[]},"previous":{"title":"大规模C++程序设计","level":"1.3.1","depth":2,"path":"程序设计与架构/大规模C++程序设计.md","ref":"程序设计与架构/大规模C++程序设计.md","articles":[]},"dir":"ltr"},"config":{"gitbook":"*","theme":"default","variables":{},"plugins":["livereload"],"pluginsConfig":{"livereload":{},"highlight":{},"search":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"}},"file":{"path":"实用技巧/README.md","mtime":"2019-08-12T00:13:09.413Z","type":"markdown"},"gitbook":{"version":"3.2.3","time":"2019-08-14T05:53:46.554Z"},"basePath":"..","book":{"language":""}});
+            gitbook.page.hasChanged({"page":{"title":"git 常用命令","level":"1.4.5","depth":2,"next":{"title":"vs编辑器","level":"1.4.6","depth":2,"path":"实用技巧/vs编辑器.md","ref":"实用技巧/vs编辑器.md","articles":[]},"previous":{"title":"Linux常用服务的部署","level":"1.4.4","depth":2,"path":"实用技巧/linux常用服务的部署.md","ref":"实用技巧/linux常用服务的部署.md","articles":[]},"dir":"ltr"},"config":{"gitbook":"*","theme":"default","variables":{},"plugins":["livereload"],"pluginsConfig":{"livereload":{},"highlight":{},"search":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"}},"file":{"path":"实用技巧/git常用命令.md","mtime":"2019-08-12T09:22:47.295Z","type":"markdown"},"gitbook":{"version":"3.2.3","time":"2019-08-14T05:53:46.554Z"},"basePath":"..","book":{"language":""}});
         });
     </script>
 </div>

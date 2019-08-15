@@ -1,0 +1,116 @@
+[TOC]
+
+# 跨平台开发
+
+对于不同平台或者是不同实现方式的函数，可以独立在c文件中，并且用static进行声明，然后使用者包含其c文件。
+
+# 线程
+
+活跃进程数一般控制在操作系统能够同时执行的进程数或者线程数的4到10之间，比如4核处理器下的最佳线程数是十几个。
+
+# 容器
+
+## 迭代器
+
+```c++
+vector<int>::iterator it1;
+vector<Teacher>::iterator it2;
+it1的型别其实就是Int*,it2的型别其实就是Teacher*.
+```
+
+# 异常
+
+## 异常的栈解旋
+
+异常被抛出后，从进入try块起，到异常被抛掷前，这期间在栈上构造的所有对象，都会被自动析构。析构的顺序与构造的顺序相反，这一过程称为栈的解旋(unwinding)
+
+> 结论：不能在析构函数中抛出异常
+
+## 异常接口声明
+
+**声明规范**
+
+- 为了加强程序的可读性，可以在函数声明中列出可能抛出异常的所有类型，例如：void func() throw(A,B,C);这个函数func能够且只能抛出类型A,B,C及其子类型的异常。
+- 如果在函数声明中没有包含异常接口声明，则此函数可以抛任何类型的异常，例如:void func()
+- 一个不抛任何类型异常的函数可声明为:void func() throw()
+- 如果一个函数抛出了它的异常接口声明所不允许抛出的异常,unexcepted函数会被调用，该函数默认行为调用terminate函数中断程序。该规则在linux下和qt下是成立的，在window下不成立，
+
+## 异常的多态使用
+
+**常用做法**
+
+```c++
+//异常基类
+class BaseException{
+public:
+    virtual void printError(){};
+};
+
+//空指针异常
+class NullPointerException : public BaseException{
+public:
+    virtual void printError(){
+        cout << "空指针异常!" << endl;
+    }
+};
+//越界异常
+class OutOfRangeException : public BaseException{
+public:
+    virtual void printError(){
+        cout << "越界异常!" << endl;
+    }
+};
+
+void doWork(){
+    throw NullPointerException();
+}
+
+void test()
+{
+    try{
+        doWork();
+    }
+    catch (BaseException& ex){
+        ex.printError();
+    }
+}
+```
+
+# 流
+
+## cerr流对象
+
+cerr流对象是标准错误流，cerr流已被指定为与显示器关联。cerr的 作用是向标准错误设备(standard error device)输出有关出错信息。
+
+> cerr与标准输出流cout的作用和用法差不多。但有一点不同：cout流通常是传送到显示器输出，但也可以被重定向输出到磁盘文件，而cerr流中的信息只能在显示器输出。当调试程序时，往往不希望程序运行时的出错信息被送到其他文件，而要求在显示器上及时输出，这时 应该用cerr。cerr流中的信息是用户根据需要指定的。
+
+## clog流对象
+
+clog流对象也是标准错误流，它是console log的缩写。
+
+> 它的作用和cerr相同，都是在终端显示器上显示出错信息。区别：cerr是不经过缓冲区，直接向显示器上输出有关信息，而clog中的信息存放在缓冲区中，缓冲区满后或遇endl时向显示器输出。
+
+# bug列表
+
+- 在-o2模式下，负数浮点数转换为byte，会强制转换为0；
+
+> https://www.embeddeduse.com/2013/08/25/casting-a-negative-float-to-an-unsigned-int/
+> https://stackoverflow.com/questions/10541200/is-the-behaviour-of-casting-a-negative-double-to-unsigned-int-defined-in-the-c-s
+
+	Casting a negative float to an unsigned int
+	… is a very bad idea. The result of the cast differs depending on whether the cast is executed on a device with Intel or ARM architecture. The C++ Standard decrees that the result of such a cast is undefined.
+	
+	When we run the two lines of code
+	
+	float f = -5.33;
+	unsigned int n = static_cast<unsigned int>(f);
+	on a device with Intel architecture, n has the value 4294967291, which is equivalent to 2 ^ 32 – 5. The two’s complement representation of -5 for 32 bits was the result desired by the code author.
+	When we run these two lines of code on a device with ARM architecture, however, n has the value 0. Actually, every negative floating point number less than or equal to -1 comes out as 0. By the way, the result is the same if we remove the static_cast. Then, the conversion is done implicitly.
+	A post at StackOverflow points us to Section 6.3.1.4 Real floating and integer of the C++ Standard for an explanation to our problem:
+	
+	In other words, the two’s complement of a negative float need not be computed. The safe range for casting a negative float to an unsigned int is from -1 to the maximum integer number that can be represented by this unsigned integer type.
+	A possible solution of our problem is to cast the floating point number to a signed integer number first and then to an unsigned integer number.
+	
+	float f = -5.33;
+	unsigned int n = static_cast<unsigned int>(static_cast<int>(f));
+- 很多处理器同样要求程序指令的对齐。多数RISC芯片要求指令必须对齐在4字节的边

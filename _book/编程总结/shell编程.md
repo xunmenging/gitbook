@@ -1,143 +1,150 @@
 [TOC]
 
-# shell编程
+# 1       shell编程
 
-## shell历史
+## 1.1   shell历史
 
-用户在命令行输入命令后，一般情况下Shell会fork并exec该命令，但是Shell的内建命令例外，执行内建命令相当于调用Shell进程中的一个函数，并不创建新的进程。以前学过的`cd、alias、umask、exit`等命令即是内建命令，凡是用which命令查不到程序文件所在位置的命令都是内建命令，内建命令没有单独的man手册，要在man手册中查看**内建命令**，应该执行
+Shell的作用是解释执行用户的命令，用户输入一条命令，Shell就解释执行一条，这种方式称为交互式（Interactive），Shell还有一种执行命令的方式称为批处理（Batch），用户事先写一个Shell脚本（Script），其中有很多条命令，让Shell一次把这些命令执行完，而不必一条一条地敲命令。Shell脚本和编程语言很相似，也有变量和流程控制语句，但Shell脚本是解释执行的，不需要编译，Shell程序从脚本中一行一行读取并执行这些命令，相当于一个用户把脚本中的命令一行一行敲到Shell提示符下执行。
 
-```
+由于历史原因，UNIX系统上有很多种Shell：
+
+1. sh（Bourne      Shell）：由Steve Bourne开发，各种UNIX系统都配有sh。
+2. csh（C Shell）：由Bill Joy开发，随BSD UNIX发布，它的流程控制语句很像C语言，支持很多Bourne Shell所不支持的功能：作业控制，命令历史，命令行编辑。
+3. ksh（Korn Shell）：由David Korn开发，向后兼容sh的功能，并且添加了csh引入的新功能，是目前很多UNIX系统标准配置的Shell，在这些系统上/bin/sh往往是指向/bin/ksh的符号链接。
+4. tcsh（TENEX C      Shell）：是csh的增强版本，引入了命令补全等功能，在FreeBSD、MacOS X等系统上替代了csh。
+5. bash（Bourne      Again Shell）：由GNU开发的Shell，主要目标是与POSIX标准保持一致，同时兼顾对sh的兼容，bash从csh和ksh借鉴了很多功能，是各种Linux发行版标准配置的Shell，在Linux系统上/bin/sh往往是指向/bin/bash的符号链接。虽然如此，bash和sh还是有很多不同的，一方面，bash扩展了一些命令和参数，另一方面，bash并不完全和sh兼容，有些行为并不一致，所以bash需要模拟sh的行为：当我们通过sh这个程序名启动bash时，bash可以假装自己是sh，不认扩展的命令，并且行为与sh保持一致。
+
+itcast$ vim /etc/passwd
+
+​    其中最后一列显示了用户对应的shell类型
+
+​    root:x:0:0:root:/root:/bin/bash
+
+​    nobody:x:65534:65534:nobody:/nonexistent:/bin/sh
+
+​    syslog:x:101:103::/home/syslog:/bin/false
+
+​    itcast:x:1000:1000:itcast,,,:/home/itcast:/bin/bash
+
+​    ftp:x:115:125:ftp daemon,,,:/srv/ftp:/bin/false
+
+用户在命令行输入命令后，一般情况下Shell会fork并exec该命令，但是Shell的内建命令例外，执行内建命令相当于调用Shell进程中的一个函数，并不创建新的进程。以前学过的cd、alias、umask、exit等命令即是内建命令，凡是用which命令查不到程序文件所在位置的命令都是内建命令，内建命令没有单独的man手册，要在man手册中查看**内建命令**，应该执行
+
 itcast$ man bash-builtins
-```
 
 如export、shift、if、eval、[、for、while等等。内建命令虽然不创建新的进程，但也会有Exit Status，通常也用0表示成功非零表示失败，虽然内建命令不创建新的进程，但执行结束后也会有一个状态码，也可以用特殊变量$?读出。
 
-## 执行脚本
+ 
+
+## 1.2   执行脚本
 
 编写一个简单的脚本test.sh：
 
-```shell
-#!/bin/sh
+\#!/bin/sh
+
 echo HelloWorld
-```
+
+cd ..
+
+ls
 
 Shell脚本中用#表示注释，相当于C语言的//注释。但如果#位于第一行开头，并且是#!（称为Shebang）则例外，它表示该脚本使用后面指定的解释器/bin/sh解释执行。如果把这个脚本文件加上可执行权限然后执行：
 
-```shell
 itcast$ chmod a+x test.sh
+
 itcast$ ./test.sh
-```
 
 Shell会fork一个子进程并调用exec执行./test.sh这个程序，exec系统调用应该把子进程的代码段替换成./test.sh程序的代码段，并从它的_start开始执行。然而test.sh是个文本文件，根本没有代码段和_start函数，怎么办呢？其实exec还有另外一种机制，如果要执行的是一个文本文件，并且第一行用Shebang指定了解释器，则用解释器程序的代码段替换当前进程，并且从解释器的_start开始执行，而这个文本文件被当作命令行参数传给解释器。因此，执行上述脚本相当于执行程序
 
-```shell
 itcast$ /bin/sh ./test.sh
-```
 
 以这种方式执行不需要test.sh文件具有可执行权限。
 
 如果将命令行下输入的命令用()括号括起来，那么也会fork出一个子Shell执行小括号中的命令，一行中可以输入由分号;隔开的多个命令，比如：
 
-```shell
 itcast$ (cd ..;ls -l)
-```
 
 和上面两种方法执行Shell脚本的效果是相同的，cd ..命令改变的是子Shell的PWD，而不会影响到交互式Shell。然而命令
 
-```shell
 itcast$ cd ..;ls -l
-```
 
 则有不同的效果，cd ..命令是直接在交互式Shell下执行的，改变交互式Shell的PWD，然而这种方式相当于这样执行Shell脚本：
 
-```shell
 itcast$ source ./test.sh
-```
 
 或者
 
-```shell
 itcast$ . ./test.sh
-```
 
 source或者.命令是Shell的内建命令，这种方式也不会创建子Shell，而是直接在交互式Shell下逐行执行脚本中的命令。
 
-## 基本语法
+## 1.3   基本语法
 
-### 变量
+### 1.3.1  变量
 
 按照惯例，Shell变量通常由字母加下划线开头，由任意长度的字母、数字、下划线组成。
 
 在Shell中定义或赋值一个变量：
 
-```shell
 VARNAME=value
-```
 
-注意**等号两边都不能有空格**，否则会被Shell解释成命令和命令行参数。
+注意等号两边都不能有空格，否则会被Shell解释成命令和命令行参数。
 
-变量的使用，用$符号跟上变量名表示对某个变量取值，**变量名可以加上花括号来表示变量名的范围**：
+变量的使用，用$符号跟上变量名表示对某个变量取值，变量名可以加上花括号来表示变量名的范围：
 
-```shell
 echo $VARNAME
-echo ${VARNAME}_suffix   #使用花括号来分离VARNAME和_suffix，不至于把VARNAME_suffix当做变量名
-```
 
-#### 变量的分类
+echo ${VARNAME}_suffix   #使用花括号来分离VARNAME和_suffix，不至于把VARNAME_suffix当做变量名
+
+#### 1.3.1.1        变量的分类
 
 根据变量的作用域不同，shell分为两种变量
 
-1. 环境变量
+\1.       环境变量
 
-   环境变量可以从父进程传给子进程，因此Shell进程的环境变量可以从当前Shell进程传给fork出来的子进程。用printenv命令可以显示当前Shell进程的环境变量。注意：环境变量只能从父进程传递给子进程而子进程不能够传给父进程。
+环境变量可以从父进程传给子进程，因此Shell进程的环境变量可以从当前Shell进程传给fork出来的子进程。用printenv命令可以显示当前Shell进程的环境变量。注意：环境变量只能从父进程传递给子进程而子进程不能够传给父进程。
 
-2. 本地变量
+\2.       本地变量
 
-   只存在于当前Shell进程，用set命令可以显示当前Shell进程中定义的所有变量（包括本地变量和环境变量）和函数。
+只存在于当前Shell进程，用set命令可以显示当前Shell进程中定义的所有变量（包括本地变量和环境变量）和函数。
 
-   环境变量是任何进程都有的概念，而本地变量是Shell特有的概念。在Shell中，环境变量和本地变量的定义和用法相似。 
+环境变量是任何进程都有的概念，而本地变量是Shell特有的概念。在Shell中，环境变量和本地变量的定义和用法相似。 
 
-   一个变量定义后仅存在于当前Shell进程，它是**本地变量**，用export命令可以把本地变量导出为环境变量，定义和导出环境变量通常可以一步完成：
+一个变量定义后仅存在于当前Shell进程，它是**本地变量**，用export命令可以把本地变量导出为环境变量，定义和导出环境变量通常可以一步完成：
 
-```shell
 itcast$ export VARNAME=value
-```
 
 也可以分两步完成：
 
-```shell
 itcast$ VARNAME=value
+
 itcast$ export VARNAME
-```
 
 本地变量根据作用于，也分为全局的本地变量以及局部的本地变量。
 
 全局的本地变量在整个shell文件中都可以访问，比如直接声明和定义一个变量var=value其实就是一个全局的本地变量，但是如果在shell定义的函数里边可以使用local 来声明一个局部变量，这种变量作用于仅限于函数内
 
-```shell
 function test
-{
-	local var=”this is a local variable”
-}
-```
 
-#### 删除变量
+{
+
+​    local var=”this is a local variable”
+
+}
+
+#### 1.3.1.2        删除变量
 
 用**unset**命令可以**删除**已定义的环境变量或本地变量。
 
-```shell
 itcast$ unset VARNAME
-```
 
 如果一个变量叫做VARNAME，用 ' VARNAME ' 可以表示它的值，在不引起歧义的情况下也可以用VARNAME表示它的值。通过以下例子比较这两种表示法的不同：
 
-```shell
 itcast$ echo $SHELL
-```
 
-注意，在定义变量时不用“'”取变量值时要用。和C语言不同的是，Shell变量不需要明确定义类型，是一种弱类型的语言，**事实上Shell变量的值都是字符串**，比如我们定义VAR=45，其实VAR的值是字符串45而非整数。Shell变量不需要先定义后使用，如果对一个没有定义的变量取值，则值为空字符串。
+注意，在定义变量时不用“'”取变量值时要用。和C语言不同的是，Shell变量不需要明确定义类型，是一种弱类型的语言，事实上Shell变量的值都是字符串，比如我们定义VAR=45，其实VAR的值是字符串45而非整数。Shell变量不需要先定义后使用，如果对一个没有定义的变量取值，则值为空字符串。
 
-### 文件名代换（Globbing）
+### 1.3.2  文件名代换（Globbing）
 
 这些用于匹配的字符称为通配符（Wildcard），如：* ? [ ] 具体如下：
 
@@ -147,38 +154,37 @@ itcast$ echo $SHELL
 
 ​    [若干字符] 匹配方括号中任意一个字符的一次出现
 
-```shell
+ 
+
 itcast$ ls /dev/ttyS*
+
 itcast$ ls ch0?.doc
+
 itcast$ ls ch0[0-2].doc
+
 itcast$ ls ch[012] [0-9].doc
-```
 
 注意，Globbing所匹配的文件名是由Shell展开的，也就是说在参数还没传给程序之前已经展开了，比如上述ls ch0[012].doc命令，如果当前目录下有ch00.doc和ch02.doc，则传给ls命令的参数实际上是这两个文件名，而不是一个匹配字符串。
 
-### 命令代换
+### 1.3.3  命令代换
 
-由“`”反引号括起来的也是一条命令，**Shell先执行该命令，然后将输出结果立刻代换到当前命令行中**。例如定义一个变量存放date命令的输出：
+由“`”反引号括起来的也是一条命令，Shell先执行该命令，然后将输出结果立刻代换到当前命令行中。例如定义一个变量存放date命令的输出：
 
-```shell
 itcast$ DATE=`date`
+
 itcast$ echo $DATE
-```
 
 命令代换也可以用$()表示：
 
-```shell
 itcast$ DATE=$(date)
-```
 
-### 算术代换
+### 1.3.4  算术代换
 
 使用$(())，用于算术计算，(())中的Shell变量取值将转换成整数，同样含义的$[ ]等价例如：
 
-```shell
 itcast$ VAR=45
+
 itcast$ echo $(($VAR+3))    等价于   $((var+3)) 或echo $[VAR+3]或 $[$VAR+3] 
-```
 
 $(())中只能用+-*/和()运算符，并且只能做整数运算。
 
@@ -186,204 +192,241 @@ $[base#n]，其中base表示进制，n按照base进制解释，后面再有运�
 
 3
 
-```shell
 echo $[8#10+11]
-echo $[16#10+11]
-```
 
-### 转义字符
+echo $[16#10+11]
+
+### 1.3.5  转义字符
 
 和C语言类似，\在Shell中被用作转义字符，用于去除紧跟其后的单个字符的特殊意义（回车除外），换句话说，紧跟其后的字符取字面值。例如：
 
-```shell
 itcast$ echo $SHELL
+
 /bin/bash
+
 itcast$ echo \$SHELL
+
 $SHELL
+
 itcast$ echo \\
+
 \
-```
 
 比如创建一个文件名为“$ $”的文件（$间含有空格）可以这样：
 
-```shell
 itcast$ touch \$\ \$
-```
 
 还有一个字符虽然不具有特殊含义，但是要用它做文件名也很麻烦，就是-号。如果要创建一个文件名以-号开头的文件，这样是不正确的：
 
-```shell
 itcast$ touch -hello
+
 touch: invalid option -- h
+
 Try `touch --help' for more information.
-```
 
 即使加上\转义也还是报错：
 
-```shell
 itcast$ touch \-hello
+
 touch: invalid option -- h
+
 Try `touch --help' for more information.
-```
 
 因为各种UNIX命令都把-号开头的命令行参数当作命令的选项，而不会当作文件名。如果非要处理以-号开头的文件名，可以有两种办法：
 
-```shell
 itcast$ touch ./-hello
-```
 
 或者
 
-```shell
 itcast$ touch -- -hello
-```
 
 \还有一种用法，在\后敲回车表示续行，Shell并不会立刻执行命令，而是把光标移到下一行，给出一个续行提示符>，等待用户继续输入，最后把所有的续行接到一起当作一个命令执行。例如：
 
-```shell
 itcast$ ls \
-\> -l
-（ls -l命令的输出）
-```
 
-### 单引号
+\> -l
+
+（ls -l命令的输出）
+
+### 1.3.6  单引号
 
 和C语言同，Shell脚本中的单引号和双引号一样都是字符串的界定符（双引号下一节介绍），而不是字符的界定符。单引号用于保持引号内所有字符的字面值，即使引号内的\和回车也不例外，但是字符串中不能出现单引号。如果引号没有配对就输入回车，Shell会给出续行提示符，要求用户把引号配上对。例如：
 
-```shell
 itcast$ echo '$SHELL'
-$SHELL
-itcast$ echo 'ABC\（回车）
-\> DE'（再按一次回车结束命令）
-ABC\
-DE
-```
 
-### 双引号
+$SHELL
+
+itcast$ echo 'ABC\（回车）
+
+\> DE'（再按一次回车结束命令）
+
+ABC\
+
+DE
+
+### 1.3.7  双引号
 
 被双引号括住的内容，将被视为单一字串。它防止通配符扩展，但允许变量扩展。这点与单引号的处理方式不同
 
-```shell
 itcast$ DATE=$(date)
+
 itcast$ echo "$DATE"
+
 itcast$ echo '$DATE'
-```
 
 再比如：
 
-```shell
 itcast$ VAR=200
+
 itcast$ echo $VAR   
+
 200
+
 itcast$ echo '$VAR'
+
 $VAR
+
 itcast$ echo "$VAR"
+
 200
-```
 
-## Shell脚本语法
+ 
 
-### 条件测试
+## 1.4   Shell脚本语法
 
-**命令test**或 [ 可以测试一个条件是否成立，如果测试结果为真，则**该命令的Exit Status为0**，如果测试结果为假，则命令的Exit Status为1（注意与C语言的逻辑表示正好相反）。例如测试两个数的大小关系：
+### 1.4.1  条件测试
 
-```shell
+**命令test**或 [ 可以测试一个条件是否成立，如果测试结果为真，则该命令的Exit Status为0，如果测试结果为假，则命令的Exit Status为1（注意与C语言的逻辑表示正好相反）。例如测试两个数的大小关系：
+
 itcast@ubuntu:~$ var=2
+
 itcast@ubuntu:~$ test $var -gt 1
+
 itcast@ubuntu:~$ echo $?
+
 0
+
 itcast@ubuntu:~$ test $var -gt 3
+
 itcast@ubuntu:~$ echo $?
+
 1
+
 itcast@ubuntu:~$ [ $var -gt 3 ]
+
 itcast@ubuntu:~$ echo $?
+
 1
+
 itcast@ubuntu:~$
-```
 
-虽然看起来很奇怪，但**左方括号 [ 确实是一个命令的名字，传给命令的各参数之间应该用空格隔开**，比如：$VAR、-gt、3、] 是 [ 命令的四个参数，它们之间必须用空格隔开。命令test或 [ 的参数形式是相同的，只不过test命令不需要 ] 参数。以 [ 命令为例，常见的测试命令如下表所示：
+虽然看起来很奇怪，但左方括号 [ 确实是一个命令的名字，传给命令的各参数之间应该用空格隔开，比如：$VAR、-gt、3、] 是 [ 命令的四个参数，它们之间必须用空格隔开。命令test或 [ 的参数形式是相同的，只不过test命令不需要 ] 参数。以 [ 命令为例，常见的测试命令如下表所示：
 
-```shell
 [ -d DIR ] 如果DIR存在并且是一个目录则为真
+
 [ -f FILE ] 如果FILE存在且是一个普通文件则为真
+
 [ -z STRING ] 如果STRING的长度为零则为真
+
 [ -n STRING ] 如果STRING的长度非零则为真
+
 [ STRING1 = STRING2 ] 如果两个字符串相同则为真
+
 [ STRING1 == STRING2 ] 同上
+
 [ STRING1 != STRING2 ] 如果字符串不相同则为真
+
 [ ARG1 OP ARG2 ] ARG1和ARG2应该是**整数或者取值为整数的变量**，OP是-eq（等于）-ne（不等于）-lt（小于）-le（小于等于）-gt（大于）-ge（大于等于）之中的一个
-```
 
 和C语言类似，测试条件之间还可以做与、或、非逻辑运算：
 
-```shell
 [ ! EXPR ] EXPR可以是上表中的任意一种测试条件，!表示“逻辑反(非)”
+
 [ EXPR1 -a EXPR2 ] EXPR1和EXPR2可以是上表中的任意一种测试条件，-a表示“逻辑与”
+
 [ EXPR1 -o EXPR2 ] EXPR1和EXPR2可以是上表中的任意一种测试条件，-o表示“逻辑或”
-```
 
 例如：
 
-```shell
 $ VAR=abc
+
 $ [ -d Desktop -a $VAR = 'abc' ]
+
 $ echo $?
+
 0
-```
 
-注意，如果上例中的$VAR变量事先没有定义，则被Shell展开为空字符串，会造成测试条件的语法错误（展开为[ -d Desktop -a  = ‘abc’ ]），**作为一种好的Shell编程习惯，应该总是把变量取值放在双引号之中**（展开为[ -d Desktop -a “” = ‘abc’ ]）：
+注意，如果上例中的$VAR变量事先没有定义，则被Shell展开为空字符串，会造成测试条件的语法错误（展开为[ -d Desktop -a  = ‘abc’ ]），**作为一种好的****Shell****编程习惯**，**应该总是把变量取值放在双引号之中**（展开为[ -d Desktop -a “” = ‘abc’ ]）：
 
-```shell
 $ unset VAR
+
 $ [ -d Desktop -a $VAR = 'abc' ]
+
 bash: [: too many arguments
+
 $ [ -d Desktop -a "$VAR" = 'abc' ]
+
 $ echo $?
+
 1
-```
 
-### 分支
+### 1.4.2  分支
 
-#### if/then/elif/else/fi
+#### 1.4.2.1        if/then/elif/else/fi
 
 和C语言类似，在Shell中用if、then、elif、else、fi这几条命令实现分支控制。这种流程控制语句本质上也是由若干条Shell命令组成的，例如先前讲过的
 
-```shell
 if [ -f ~/.bashrc ]; then
-	. ~/.bashrc
+
+​    . ~/.bashrc
+
 fi 
-```
 
-其实是三条命令，if [ -f ∼/.bashrc ]是第一条，then . ∼/.bashrc是第二条，fi是第三条。如果两条命令写在同一行则需要用;号隔开，一行只写一条命令就不需要写;号了，另外，then后面有换行，但这条命令没写完，Shell会自动续行，把下一行接在then后面当作一条命令处理。和[命令一样，要注意命令和各参数之间必须用空格隔开。if命令的参数组成一条子命令，如果该子命令的Exit Status为0（表示真），则执行then后面的子命令，如果Exit Status非0（表示假），则执行elif、else或者fi后面的子命令。if后面的子命令通常是测试命令，但也可以是其它命令。**Shell脚本没有{}括号，所以用fi表示if语句块的结束**。见下例：
+其实是三条命令，if [ -f ∼/.bashrc ]是第一条，then . ∼/.bashrc是第二条，fi是第三条。如果两条命令写在同一行则需要用;号隔开，一行只写一条命令就不需要写;号了，另外，then后面有换行，但这条命令没写完，Shell会自动续行，把下一行接在then后面当作一条命令处理。和[命令一样，要注意命令和各参数之间必须用空格隔开。if命令的参数组成一条子命令，如果该子命令的Exit Status为0（表示真），则执行then后面的子命令，如果Exit Status非0（表示假），则执行elif、else或者fi后面的子命令。if后面的子命令通常是测试命令，但也可以是其它命令。Shell脚本没有{}括号，所以用fi表示if语句块的结束。见下例：
 
-```shell
-#! /bin/sh
+\#! /bin/sh
+
+ 
+
 if [ -f /bin/bash ]
+
 then 
-    echo "/bin/bash is a file"
+
+​    echo "/bin/bash is a file"
+
 else 
-    echo "/bin/bash is NOT a file"
+
+​    echo "/bin/bash is NOT a file"
+
 fi
 
 if :; then echo "always true"; fi
-```
 
 “:”是一个特殊的命令，称为空命令，该命令不做任何事，但Exit Status总是真。此外，也可以执行/bin/true或/bin/false得到真或假的Exit Status。再看一个例子：
 
-```shell
-#! /bin/sh
+\#! /bin/sh
+
+ 
 
 echo "Is it morning? Please answer yes or no."
+
 read YES_OR_NO
+
 if [ "$YES_OR_NO" = "yes" ]; then
-    echo "Good morning!"
+
+​    echo "Good morning!"
+
 elif [ "$YES_OR_NO" = "no" ]; then
-    echo "Good afternoon!"
+
+​    echo "Good afternoon!"
+
 else
-    echo "Sorry, $YES_OR_NO not recognized. Enter yes or no."
-    return ;
+
+​    echo "Sorry, $YES_OR_NO not recognized. Enter yes or no."
+
+​    return ;
+
 fi
-```
 
 上例中的read命令的作用是等待用户输入一行字符串，将该字符串存到一个Shell变量中。
 
