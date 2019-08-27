@@ -20,4 +20,5 @@
     * [makefile](编程总结/makefile.md)
     * [linux基本知识](编程总结/linux基础知识.md)
     * [shell编程](编程总结/shell编程.md)
+    * [keil配置](编程总结/keil配置.md)
 
