@@ -447,8 +447,24 @@ CLI version: 2.3.2
 GitBook version: 3.2.3
 </code></pre><h1 id="gitbook&#x7684;&#x4F7F;&#x7528;">gitbook&#x7684;&#x4F7F;&#x7528;</h1>
 <ol>
-<li>gitbook init&#x521D;&#x59CB;&#x5316;</li>
-<li>gitbook serve &#x5F00;&#x542F;&#x670D;&#x52A1;</li>
+<li><p>gitbook init&#x521D;&#x59CB;&#x5316;</p>
+</li>
+<li><p>gitbook serve &#x5F00;&#x542F;&#x670D;&#x52A1;</p>
+</li>
+<li><p>gitbook&#x5B89;&#x88C5;&#x6298;&#x53E0;&#x76EE;&#x5F55;&#x7684;&#x63D2;&#x4EF6;</p>
+<ul>
+<li><p>Add it to your <code>book.json</code> configuration:</p>
+<pre><code class="lang-json">{
+    <span class="hljs-string">&quot;plugins&quot;</span>: [<span class="hljs-string">&quot;expandable-chapters&quot;</span>]
+}
+</code></pre>
+</li>
+<li><p>Install your plugins using:</p>
+<pre><code class="lang-shell">$ gitbook install
+</code></pre>
+</li>
+</ul>
+</li>
 </ol>
 <h1 id="typora&#x4F7F;&#x7528;">typora&#x4F7F;&#x7528;</h1>
 <h2 id="&#x5E38;&#x7528;&#x5FEB;&#x6377;&#x952E;">&#x5E38;&#x7528;&#x5FEB;&#x6377;&#x952E;</h2>
@@ -462,6 +478,36 @@ GitBook version: 3.2.3
 <li>ctrl+k&#xFF1A;&#x94FE;&#x63A5;&#x5F15;&#x7528;</li>
 <li>ctrl+shift+i&#xFF1A;&#x63D2;&#x5165;&#x56FE;&#x7247;</li>
 </ul>
+<h1 id="github&#x7684;&#x4F7F;&#x7528;">github&#x7684;&#x4F7F;&#x7528;</h1>
+<h2 id="deploying-a-subfolder-to-github-pages">Deploying a subfolder to GitHub Pages</h2>
+<p>Sometimes you want to have a subdirectory on the master branch be the root directory of a repository&#x2019;s gh-pages branch. This is useful for things like sites developed with Yeoman, or if you have a Jekyll site contained in the master branch alongside the rest of your code.</p>
+<p>For the sake of this example, let&#x2019;s pretend the subfolder containing your site is named dist.</p>
+<p><strong>Step 1</strong>
+Remove the dist directory from the project&#x2019;s .gitignore file (it&#x2019;s ignored by default by Yeoman).</p>
+<p><strong>Step 2</strong>
+Make sure git knows about your subtree (the subfolder with your site).</p>
+<pre><code class="lang-shell">git add dist &amp;&amp; git commit -m &quot;Initial dist subtree commit&quot;
+</code></pre>
+<p><strong>Step 3</strong>
+Use subtree push to send it to the gh-pages branch on GitHub.</p>
+<pre><code class="lang-shell">git subtree push --prefix dist origin gh-pages
+</code></pre>
+<p>Boom. If your folder isn&#x2019;t called dist, then you&#x2019;ll need to change that in each of the commands above.</p>
+<p>If you do this on a regular basis, you could also create a script containing the following somewhere in your path:</p>
+<pre><code class="lang-shell">#!/bin/sh
+if [ -z &quot;$1&quot; ]
+then
+  echo &quot;Which folder do you want to deploy to GitHub Pages?&quot;
+  exit 1
+fi
+git subtree push --prefix $1 origin gh-pages
+</code></pre>
+<p>Which lets you type commands like:</p>
+<pre><code class="lang-shell">git gh-deploy path/to/your/site
+</code></pre>
+<h2 id="gitbook&#x8BBF;&#x95EE;&#x7F51;&#x5740;">gitbook&#x8BBF;&#x95EE;&#x7F51;&#x5740;</h2>
+<pre><code class="lang-html">https://xunmenging.github.io/gitbook/index.html
+</code></pre>
 
                                 
                                 </section>
@@ -501,7 +547,7 @@ GitBook version: 3.2.3
     <script>
         var gitbook = gitbook || [];
         gitbook.push(function() {
-            gitbook.page.hasChanged({"page":{"title":"前言","level":"1.1","depth":1,"next":{"title":"网络编程","level":"1.2","depth":1,"path":"网络编程/README.md","ref":"网络编程/README.md","articles":[{"title":"游戏服务器架构与设计","level":"1.2.1","depth":2,"path":"网络编程/游戏服务器架构与设计.md","ref":"网络编程/游戏服务器架构与设计.md","articles":[]},{"title":"linux多线程服务器编程","level":"1.2.2","depth":2,"path":"网络编程/linux多线程服务器编程.md","ref":"网络编程/linux多线程服务器编程.md","articles":[]}]},"dir":"ltr"},"config":{"gitbook":"*","theme":"default","variables":{},"plugins":["expandable-chapters","livereload"],"pluginsConfig":{"expandable-chapters":{},"livereload":{},"highlight":{},"search":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"}},"file":{"path":"README.md","mtime":"2019-08-15T01:34:38.089Z","type":"markdown"},"gitbook":{"version":"3.2.3","time":"2019-08-27T02:29:15.707Z"},"basePath":".","book":{"language":""}});
+            gitbook.page.hasChanged({"page":{"title":"前言","level":"1.1","depth":1,"next":{"title":"网络编程","level":"1.2","depth":1,"path":"网络编程/README.md","ref":"网络编程/README.md","articles":[{"title":"游戏服务器架构与设计","level":"1.2.1","depth":2,"path":"网络编程/游戏服务器架构与设计.md","ref":"网络编程/游戏服务器架构与设计.md","articles":[]},{"title":"linux多线程服务器编程","level":"1.2.2","depth":2,"path":"网络编程/linux多线程服务器编程.md","ref":"网络编程/linux多线程服务器编程.md","articles":[]}]},"dir":"ltr"},"config":{"gitbook":"*","theme":"default","variables":{},"plugins":["expandable-chapters","livereload"],"pluginsConfig":{"expandable-chapters":{},"livereload":{},"highlight":{},"search":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"}},"file":{"path":"README.md","mtime":"2019-08-27T03:43:08.357Z","type":"markdown"},"gitbook":{"version":"3.2.3","time":"2019-08-27T03:43:28.901Z"},"basePath":".","book":{"language":""}});
         });
     </script>
 </div>
