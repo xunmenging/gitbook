@@ -92,7 +92,7 @@ cat id_rsa.pub //拷贝秘钥 ssh-rsa开头
 
 ###  4.1 在git仓库下使用`git submodule add`添加子git仓库：
 
-```
+```shell
 git submodule add ../../share/pages-demo.git submodule-path
 ```
 
@@ -109,7 +109,7 @@ git submodule add ../../share/pages-demo.git submodule-path
 
 ###  4.2 提交至远程仓库
 
-```
+```shell
 git add -A
 git commit -m 'git submodule add ../../share/pages-demo.git submodule-path'
 git push
