@@ -85,3 +85,47 @@ cat id_rsa.pub //拷贝秘钥 ssh-rsa开头
 ```
 取个名字，把之前拷贝的秘钥复制进去，添加就好啦。
 ```
+
+#  4 git submodule用法
+
+前提：同一帐户下有母仓库的读写权限，子仓库的读权限；
+
+###  4.1 在git仓库下使用`git submodule add`添加子git仓库：
+
+```shell
+git submodule add ../../share/pages-demo.git submodule-path
+```
+
+> 说明：
+>
+> 1. 同一git仓库下推荐使用相对路径
+>     同组下项目
+>     url = ../pages-demo.git
+>     指定组项目
+>     url = ../../share/pages-demo.git
+> 2.  `.gitignore`不能添加`submodule-path` 
+
+命令执行成功后，可以看到子仓库git克隆过程，否则多测试下相对路径，直到成功为止。
+
+###  4.2 提交至远程仓库
+
+```shell
+git add -A
+git commit -m 'git submodule add ../../share/pages-demo.git submodule-path'
+git push
+```
+
+成功后，在浏览器中，可以看到点击子仓库链接到实际仓库。 如果有子仓库的写权限，也可直接修改子仓库，并提交到远程仓库。
+
+###  4.3 克隆带有submodule的仓库
+
+```shell
+方式一：
+git clone https://gitlab.utcook.com/share/c-lang-demo.git
+cd c-lang-demo
+git submodule update --init --recursive  # 第一次，需要加 --init
+
+方式二：
+git clone --recurse-submodules <main_project_url>  # 获取主项目和所有子项目源码
+```
+

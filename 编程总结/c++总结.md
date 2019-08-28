@@ -114,3 +114,17 @@ clog流对象也是标准错误流，它是console log的缩写。
 	float f = -5.33;
 	unsigned int n = static_cast<unsigned int>(static_cast<int>(f));
 - 很多处理器同样要求程序指令的对齐。多数RISC芯片要求指令必须对齐在4字节的边
+
+# C++类型转换
+
+- static_cast 静态类型转换
+
+  所谓的静态,即在编译期内即可决定其类型的转换,用的也是最多的一种。
+
+- dynamic_cast 子类和父类之间的多态类型转换
+
+- const_cast 去掉const属性转换
+
+- reinterpret_cast 重新解释类型转换
+
+  interpret 是解释的意思,reinterpret 即为重新解释,此标识符的意思即为数据的二进制形式重新解释,但是不改变其值。
