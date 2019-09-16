@@ -76,3 +76,8 @@ sudo ifconfig eth0 192.168.102.123
 
 > 提示：LISTEN和LISTENING的状态只有用-a或者-l才能看到
 > sudo netstat -anp | grep ftp
+
+# ping命令
+
+- ping 域名 dns问题
+- ping 公网ip，
