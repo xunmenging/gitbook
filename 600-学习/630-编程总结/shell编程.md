@@ -1335,6 +1335,17 @@ sed option -f scriptfile file1 file2 ...            sed 参数 –f ‘脚本文
 -u, --unbuffered        最低限度的缓存输入与输出。
 ```
 
+> 今天在写脚本时用到了sed，我用sed替换xml文件中的变量。一般在sed 中替换都用单引号，如下边
+>
+> sed -i ‘s/10/1000/g’ test.xml
+> 但是如果需要把1000改成变量，如
+> sed -i ’s/10/$num/g‘ test.xml
+> 这样就不成功。
+>
+> 此时需要把单引号改成双引号,如下边例子
+> $num=1000
+> sed -i "s/10/$num/g" test.xml
+
 以上仅是sed程序本身的选项功能说明，至于具体的脚本指令（即对文件内容做的操作）后面我们会详细描述，这里就简单介绍几个脚本指令操作作为sed程序的例子。
 
 a,  append          追加
