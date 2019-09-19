@@ -8,7 +8,7 @@
 
 成员变量不用下划线开头是因为下划线是预留给C编译器使用的
 
-#### 类成员的布局
+### 类成员的布局
 
 - 生成函数（creator）
 
@@ -32,6 +32,34 @@
 
 - 数据成员用m开头，如：m_data
 - 静态数据成员用s开头，如：s_instance;
+### 类设计
+
+- 永远不要返回私有数据成员的非const指针或引用，这会破坏封装性。
+
+- 避免将函数声明为可以重写的函数（虚函数），除非有合理的安排
+
+- 使用枚举类型代替布尔类型，提高代码的可读性
+
+- 尽量使用智能指针
+
+  - 共享指针：引用计数方式，
+  - 弱引用指针：包含一个指向对象的指针，通常为共享指针，但是不增加其引用计数，如果一个共享指针和一个弱指针引用了相同对象，那么当共享指针被销毁时，弱指针会立马变为null
+
+- 将资源的申请和释放当作对象的构造和析构
+
+- 不要将平台相关的#if或者#ifdef语句放在公共的api中，因为这些暴露了实现细节，使得api因平台而异
+
+- 与成员函数相比，使用非成员，非友元的方法能降低耦合度
+
+  ```c++
+  如：
+  // myobjecthelper.h
+  namespace MyObjectHelper
+  {
+  	void PrintName(const MyObject& obj);
+  };
+  ```
+
 
 ## 逻辑设计表示法
 
@@ -419,3 +447,206 @@ File::~File(){}
 - 许多常见的基于risc的微处理器，依赖基本类型实例的自然对齐，自然对齐意味着内置的类型实例，int、double、char*不能驻留在任意地址上，而是必须排列在N字节的地址界上，其中N是对象的大小
 - 插装全局运算符New和delete，是在系统中理解和测试动态内存分配行为简单有效的方式
 - 当插装全局的new和delete时，使用iostream会产生副作用。
+
+# 设计模式
+
+## 单例模式
+
+设计要点：
+
+- GetInstance（）方法即可以返回单例类的指针，也可以返回引用，当返回指针时，客户可以删除该对象，因此最好返回引用
+
+- 将构造函数，析构函数，拷贝函数以及赋值操作符声明为私有或受保护的，可以实现单例。
+
+- 常见的简单的做法：
+
+  ```c++
+  Singleton& Singletion::GetInstance()
+  {
+  	static Singleton instance;
+  	return instance;
+  }
+  ```
+
+  缺点：
+
+  - 不是线程安全的。
+  - 这种技术依赖于静态变量标准的后进先出式的销毁行为，如果单例在其析构函数中调用其他单例的情况，就可能导致单例在预期时间之前被销毁。比如：Clip实例化时，会调用Log，以便输出一些诊断信息，当程序退出时，由于Log是在Clip之后创建的，因此先销毁Log，再销毁Clip，但再Clip销毁的时候会尝试调用Log，记录它被销毁的事实，可是Log已经被销毁了，则可能导致程序退出时崩溃
+
+- 双重检查锁定模式的方式
+
+  ```c++
+  Singleton& Singleton::GetInstance()
+  {
+  	static Singleton* instance = null;
+  	if (!instance)	// 检查1
+  	{
+  		static Mutex mutex;
+  		ScopeLock lock(&mutex);
+  		if (!instance) // 检查2
+  		{
+  			instance = new Singleton();
+  		}
+  	}
+  	return *instance;
+  }
+  ```
+
+  缺点：
+
+  - 不能保证再所有编译器和所有处理器内存模型下都能正常工作。例如，共享内存的对称多处理器通常突发式提交内存写操作，这会造成不同线程的写操作重新派粗。
+
+- 如果线程安全的getintance()的性能对你来说要求很高，可以采用下面的方式
+
+  - 静态初始化；这需要确保构造函数不依赖其他.cpp文件中的非局部静态变量。可以在singleton.cpp文件中添加以下静态初始化调用，以确保在main调用之前创建实例，这时假定程序还是单线程的。
+
+    ```c++
+    static Singleton& foo = Singleton::GetInstance();
+    ```
+
+  - 显式api初始化，如果之前不存在初始化例程，可以考虑向库中添加一个，这样就可以从GetInstance方法中移除互斥锁，而将单例的实例化作为库初始化的一部分，并在此处添加互斥锁。
+
+    ```c++
+    Static Mutex mutex;
+    void ApiInit()
+    {
+    	ScopeLock(&mutex);
+    	Singleton::GetInstance():
+    }
+    ```
+
+    > 这样做的好处式，一旦遇到单依赖的问题。可以指定所有单例的初始化顺序，显然要求用户显式初始化一个库有些不优雅，但需要提供线程安全的api，这时唯一的必要条件。
+
+## 工厂模式
+
+构造函数的限制：
+
+- 没有返回值
+
+- 命名限制，例如两个构造函数不能同时具有一个整形参数
+
+- 静态绑定创建。在构造对象时，必须指定编译时能确定的特定类型。没有运行时绑定的功能
+
+- 不允许虚构造函数。
+
+  工厂模式绕开了上述限制，它通常和继承一起使用，即派生类能够重写工厂方法，并返回派生类的实例。常见的做法为使用抽象基类。
+
+常用做法：
+
+```c++
+// RenderFactory.h
+class RenderFactory
+{
+public:
+	typedef IRender* (* CreateCallback)();
+	static void Regiser(const std::string& type, CreateCallback cb);
+	static void UnRegister(const std::string& type);
+	static IRender* CreateRender(const std::string& type);
+	
+private:
+	std::map<std::string, CreateCallback> m_renders;
+};
+
+// IRender.h
+class IRender
+{
+public:
+	virtual ~IRender(){}
+	virtual void update();
+}
+
+// UserRender.h
+class UserRender : public IRender
+{
+public:
+	~UserRender(){}
+	void Update();
+	static IRender* Create(){
+		return new UserRender();
+	}
+}
+```
+
+## MVC模式
+
+mvc模式要求业务逻辑（model，模型）独立于用户界面（view，视图），控制器（controller）接收是、用户输入并协调另外两者。有以下优点：
+
+- 模型和视图组件的隔离，可以实现多个用户界面，并且公用业务逻辑
+- 模型和视图的解耦，简化了核心业务层编写单元测试的工作
+- 允许模型和视图开发者并行工作。
+
+> 控制器->视图->模型 控制器->模型
+>
+> 视图可以调用模型代码（发现最新状态并更新UI），但是反之就不行；模型代码不应该获知任何视图代码的编译时信息（因为这样会把模型绑定在一个视图上）
+>
+> 控制器和视图都依赖于模型，但是模型不依赖于两者。
+
+在简单的应用中，控制器能基于用户的输入来改变模型，并通知给视图更新UI；但在真实的应用中，通常需要模型状态的改变知道到视图层，但如刚才所说，模型不能静态绑定视图。这就要借助于观察者模型了。
+
+观察者的设计：
+
+```c++
+class IObserver
+{
+    public:
+    virtual ~IObserver(){}
+    virtual void update(int msg) = 0;
+}
+
+class ISubject
+{
+    public:
+    ISubject();
+    virtual ~ISubject();
+    virtual void Subscibe(int msg, IObserver* observer);
+    virtual void Unsubscribe(int msg, IObserver* observer);
+    virtual void Notify(int msg);
+    
+    private:
+    map<int, vector<IObserver*>>m_observers;
+};
+
+class MySubject : public ISubject
+{
+public:
+	ennum Msg{ADD, REMOVE};
+};
+
+class MyObserver : public IObserver
+{
+public:
+	void Update(int msg)
+	{
+		//
+	}
+}
+
+int main()
+{
+    MyObserver ob1;
+    MyObserver obj2;
+    MyObserver obj3;
+    MySubject sub;
+    
+    sub.Subsribe(MySubject::ADD, &obj1);
+    sub.Subsribe(MySubject::ADD, &obj2);
+    sub.Subsribe(MySubject::REMOVE, &obj2);
+    sub.Subsribe(MySubject::REMOVE, &obj3);
+    
+    sub.Notify(MySubject::ADD);
+    sub.Notify(MySubject::REMVOE);
+    
+}
+```
+
+缺点：
+
+- 在销毁观察者对象之前，必须先取消订阅此观察者对象，否则，下次通知会导致崩溃。
+
+> 观察者的类型：
+>
+> - 基于推的观察者：所有消息时被推送给观察者，通过给Update传递参数。
+> - 基于拉的观察者：update方式仅用于发送时间产生的通知，如果观察者要获得更多细节，就必须直接查询主题对象。
+> - 基于推的方案可用于在通知中发送常用的小数据，而对于大数据，推的模式效率比较低，可以采用拉的方式。
+>
+> 例如：用户在文本输入框中按下回车，可将用户输入的实际文本作为update的参数推给观察者，或者观察者对象调用主题的GetText方法来获取它需要的信息（拉）
