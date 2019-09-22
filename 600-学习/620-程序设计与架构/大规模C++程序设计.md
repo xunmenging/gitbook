@@ -2096,52 +2096,44 @@ public:
 
 ```
 
+# 测试
 
+## 编写测试的理由
 
-# cmake编译api 接口设计中的源码
+- 增加信心
+- 确保向后兼容性
+- 节约成本
+- 编写用例
+- 合规保证
 
-## Build System
+## api测试的类型
 
-I have used the cross-platform CMake build system to facilitate compiling and linking the examples, so they should work on Windows, Mac OS X, and most UNIX operating systems. You will need to download and install CMake for your platform first though, if you don’t already have it installed:
+- 白盒测试：代码级别的
+- 黑盒测试：基于产品说明进行的
+- 灰盒测试：前两者的组合
+- 系统测试：再完整的集成系统上进行的测试，假定测试对象为用户运行的真实的应用
 
-- http://www.cmake.org/
+常用的非功能性测试：
 
-## Building From The Command Line (Linux/Mac/Windows)
+- 性能测试：验证api的功能满足最低运行速度或最小内存使用的要求
+- 负载测试：给系统增加需求或压力，并测试系统处理这些负载的能力，通常指同时又很多并发用户，或者每秒执行很多api请求的测试。有时也称为压力测试
+- 可扩展性测试：确保系统能处理潘达的复杂生产数据的输入
+- 浸泡测试：尝试长期持续运行软件，以满足客户对软件健壮性的需求（比如没有内存泄漏，计数器溢出，或计数器相关的错误）
+- 安全行测试：比如保密性，身份认证，授权，完整性和敏感信息的可获取行
+- 并发测试：验证代码的多线程行为，确保它能够正确执行而不死锁
 
-With the ‘cmake’ command in your path, you can simply do the following to create a set of Makefiles for your platform and then build all of the examples. This should work from a Linux shell, a Mac OS X Terminal, or a Cygwin shell on Windows (when using Cygwin you should use Cygwin’s /usr/bin/cmake version of CMake).
+> api测试应该组合使用单元测试和集成测试，也可以适当运用非功能性技术测试，比如性能测试，并发测试和安全性测试
 
-```
-% cd <source-code-root-dir>
-% mkdir build
-% cd build
-% cmake -G "Unix Makefiles" ..
-% make
-```
+### 单元测试
 
-**Note**, you can also run the `configure.sh` script in the root directory to create the build directory and perform the cmake command for you.
+> 单元测试时一种百盒测试技术，用于独立验证函数和类的行为
 
-## Building With XCode on Mac OS X
+如果测试的方法或对象依赖系统的其他资源，比如磁盘，数据库中的记录或远程服务器上的软件，则引发了对单元测试的不同两种观点：
 
-If you prefer to use the XCode IDE on the Mac rather than compile from the Terminal, then you can simply do the following:
+- 测试固件设置：再每个单元运行测试前，初始化一个一致的环境或测试固件
+- 桩/模拟对象：创建桩对象或模拟对象代表单元之外的依赖性，将待测试的代码同系统其他部分隔离开。例如：如果需要和数据库通信，那么可以创建数据库桩对象来接收单元生成的查询子集，然后由桩对象再响应中返回封装的数据，而不是真正的与数据库进行连接。因此这时一个完全独立的测试，不受数据库问题，网络，文件系统权限的影响
 
-```
-% cd <source-code-root-dir>
-% mkdir build
-% cd build
-% cmake -G "Xcode" ..
-% open APIBook.xcodeproj
-```
+### 集成测试
 
-You can then build, run, and debug all of the examples from within XCode.
+> 集成测试一种黑盒技术，用于验证几个组件的交互过程，它们时站在客户的角度编写的。
 
-## Build With Visual Studio on Windows
-
-If you’re on Windows then you can configure and build the examples using Visual Studio as follows:
-
-1. Run the CMake GUI
-2. Specify the root directory of this package as the source location
-3. Create a ‘build’ subdirectory and specify that as the build location
-4. Press the “Configure” button (you may have to press it twice)
-5. Press the “Generate” button
-
-This should generate a Visual Studio solution file called `APIBook.sln` in the build directory that you specified. You can open that file in Visual Studio to build, run, and debug the examples.
