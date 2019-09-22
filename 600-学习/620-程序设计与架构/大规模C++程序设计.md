@@ -60,6 +60,9 @@
   };
   ```
 
+### 过程控制
+
+把编译器的警告当错误处理，编译时使用诸如-Wextra和-Weffc++之类的额外检查
 
 ## 逻辑设计表示法
 
@@ -995,23 +998,23 @@ void Stack<int>::Push(int val)
   };
   ```
 
-  ## 构造函数和赋值
+## 构造函数和赋值
 
-  ### 拷贝构造函数调用时机
+### 拷贝构造函数调用时机
 
   - 对象以值传递的方式或返回
   - 对象使用MyClass a=b初始化
   - 对象位于在花括号中的初始化列表内
   - 对像在异常中被抛出或捕获
 
-  ### 赋值操作符的实现原则
+### 赋值操作符的实现原则
 
   - 为右侧操作符数使用const引用
   - 以引用方式返回*this，以支持操作符链
   - 在设置新状态前销毁已存在的状态
   - 通过比较this和&rth检测自赋值（a=a）
 
-  ### 控制编译器生成的函数
+### 控制编译器生成的函数
 
   ```C++
   生成默认的函数：
@@ -1035,4 +1038,1110 @@ void Stack<int>::Push(int val)
   以上特性为C11特性
   ```
 
-  
+##   const正确性
+
+- 方法的const正确性
+
+- 参数const正确性
+
+  > 尽可能早的将函数和参数声明为const，过后修正api的const正确性会耗时又麻烦。
+
+- 返回值的const正确性
+
+  > 这种情况下，还要考虑返回的指针或引用是否会比类存在得更久，如果又这个可能，就应该考虑返回一个引用计数指针，比如share_ptr
+  >
+  > 首选传值方式，而不是const引用的方式返回函数的结果，因为既不用担心客户在对象被销毁以后仍继续持有引用，也不会因为返回const引用而破坏封装性。
+
+## 模板
+
+### 隐式实例化api
+
+意味着编译器必须找到一个合适的位置插入代码，并保证只有一份代码实例存在，以避免重复符号链接错误。会使代码膨胀，延长编译和连接期；
+
+常用做法：将所有的模板实现细节包含在单独的实现头文件中，该头文件被主要公有头文件包含，以stack模板为例
+
+```c++
+// stack.h
+template <typename T>
+class Stack
+{
+  public: 
+    void Push(T val);
+    
+  private:
+    std::vector<T>mStack;
+};
+#include "stack_priv.h"
+
+// stack_priv.h
+template <typename T>
+void Stack<T>::Push<T val>
+{
+	//
+}
+
+```
+
+> boost库采用上述技巧
+
+### 显式实例化
+
+允许将模板实现移入cpp文件，以使对用户隐藏。
+
+```c++
+// stack.h
+template <typename T>
+class Stack
+{
+  public: 
+    void Push(T val);
+    
+  private:
+    std::vector<T>mStack;
+};
+typedef Stack<int> IntStack;
+typedef Stack<Double> DoubleStack;
+typedef Stack<std::string> StringStack;
+
+// stack.cpp
+template <typename T>
+void Stack<T>::Push<T val>
+{
+	//
+}
+// 显式模板实例化
+template class Stack<int>;
+template class Stack<double>;
+template class Stack<std::string>;
+```
+
+> 该风格降低了#include与API的耦合度，同时减少了客户程序因为包含api而必须每次编译的额外代码
+>
+> 如果只需要一些确定的特化集合，那么尽量选择显式模板实例化，这样就可以隐藏私有细节并降低构建时间。
+>
+> gnu c++和Intel icc编译器设置-fno-implicit-templates选项来关闭隐式实例化功能
+>
+> C++11中添加了对extern模板的支持，也就是可以使用extern关键字阻止编译器在当前编译单元中实例化一个模板。
+
+## 操作符重载
+
+c++标准将下列操作符声明为成员方法，以确保它们接收左值（指代对象的表达式），作为第一个操作数：
+
+- =赋值
+- []下标
+- ->类成员访问
+- ->*指针成员选择
+- ()函数调用
+- (T)类型转换，即C风格的转换
+- New/delete
+
+其余的可重载操作符即可以定义为自由函数，也可以定义为类的成员函数。建议尽量选择自由函数，而不是成员函数，原因如下：
+
+- 操作符对称性，如果将\*定义为成员函数，只允许编写curreny\*2表达式，不能编写2\*curreny表达式
+- 降低耦合性
+
+> 除非操作符必须访问私有成员函数，或者受保护的成员，或他是=、[]、->、->*、()、（T）、new、delete中的一个，否则应该将其声明为自由函数。
+
+### 操作符及其在api中的声明语法
+
+```c++
+赋值：x=y	T1& T1::operator=(const T2&y);
+解引用：*x	T1& operator *(T1& x);
+引用：&x	T1* operator &(T1& x);
+类成员访问：x->y	T2* Top1::operator ->();
+指针成员选择：x->*y	T2 T1::operator->*(T2 T1::*);
+数组下标：x[n]	T2& T1::operator [](unsigned int n);
+				T2& T1::operator [](const std::string &s);
+函数调用：x()  void T1::operator()(T2& x);
+				T2 T1::operator()（）const;
+C风格转换：(y)x	T1::operator T2()const;
+一元正号：+x	T1 operator +(const T1& x);
+加：x+y	T1 operator +(const T1&x, const T2&y);
+加后赋值：x+=y T1& operator +=(T1&x, const T2& y);
+前置自增：++x T1& operator ++(T1& x);
+			T1& T1::operator ++();
+后置自增：x++ T1 operator ++(T1& x, int);
+			T1 T1::operator ++(int);
+相等：x==y bool operator ==(const T1& x, const T2& y);
+		bool T1::operator ==(const T2& y)const;
+逻辑非：!x  bool operator !(const T1& x);
+			bool T1::operator !()const;
+左移：<< T1 operator <<(const T1& x, const T2& y);
+			ostream& operator <<(ostream &, const T1& x);
+			T1 T1::operator <<(const T2& y)const;
+按位取反：~x T1 operator ~(const T1& x);
+			T1 T1::operator ~()const;
+分配对象：new void* T1::operator new(size_t n);
+分配数组：new[] void* T1::operator new[](size_t n);
+释放对象：delete void T1::operator delete(void* x);
+释放数组：delete[] void T1::operator delete[](void* x);
+```
+
+## 函数参数
+
+### 引用和指针参数
+
+> 尽量在可行的地方为输入参数使用const引用，而非指针。对于输出参数，考虑使用指针而不是非const引用，以便显式的向客户表明它们可能被修改。
+
+### 默认参数
+
+> 当默认值会暴露实现中的常量时，尽量选择函数重载，而不是默认参数，
+>
+> 如果默认参数时一个无效值或空值，那么这种做法不太可能在多个api版本之间发生变化，就没必要重载了，
+
+### 尽量避免使用#define定义常量
+
+> 使用静态const数据成员而非#define表示类常量
+>
+> 使用enum
+
+## 导出符号
+
+> 使用内部链接以便隐藏cpp文件内部的，具有文件作用域的自由函数和变量，使用static关键字，或匿名命名空间
+
+导出和编译器有关：
+
+- vs2xxx；dll中的符号不可访问，可以使用\_\_desclspec(dllexport)导出符号，客户使用\_\_desclspec(dllimport)才能访问相同的符号
+- gnu c++编译器：动态库中具有外部链接的符号默认为可见的。不过可以通过\_\_attribute\_\_可见性修饰符显式隐藏一个符号。gnuc++4.0编译器引入了\_\_fvisibility_hidden标记，它强制所有声明在默认情况下隐藏可见性，个别符号可以通过\_\_attribute\_\_((visiblitity)("default"))显式导出。这更像windows的行为，使用\_\_fvisibility_hidden标记还可以显式提升动态库的加载性能，并生成更小的库。
+
+可以使用DLL_PUBLIC宏，显式导出符号，定义DLL_HIDDEN宏，隐藏符号，例如：
+
+```c++
+#if defined _WIN32 || defined __CYGWIN__
+	#ifdef __EXPORTING // 生成dll时定义它
+		#ifdef __GNUC__
+			#define DLL_PUBLIC __attribute__((dllexport))
+		else
+            #define DLL_PUBLIC __declspec(dllexport)
+        #endif
+    #else
+        #ifdef __GNUC__
+			#define DLL_PUBLIC __attribute__((dllimport))
+		#else
+			#define DLL_PUBLIC __declspec((dllimport))
+		#endif
+	#endif
+	#define DLL_HIDDERN
+#else
+	#if __GNUC__ >= 4
+		#define DLL_PUBLIC __attribute__((visibility("default")))
+		#define DLL_PUBLIC __attribute__((visibility("hidden")))
+	#else
+		#define DLL_PUBLIC
+		#define DLL_HIDDERN
+	#endif
+#endif
+ 
+例如：导出api中的一个类或者函数，可以这样做：
+DLL_PUBLIC void MyFunction();
+class DLL_PUBLIC MyClass;
+```
+
+> 应该显式导出公有api的符号，以便维持对动态库中类，函数，和变量访问行的直接控制，对于gnuC++，可以使用\_\_fvisibility\_\_hidden选项
+
+# 性能
+
+> 为优化api，应使用工具收集代码在真实运行实例中的性能数据，然后把优化精力集中在实际的瓶颈上，不要猜测性能瓶颈的位置
+
+性能优化的几个方面
+
+- 编译时速度
+- 运行时速度
+- 运行时内存开销
+- 库的大小
+- 启动时间
+
+## 通过const引用传递输入参数
+
+> 引用可以避免创建和销毁对象的临时副本，及副本中所有的成员和继承对象的内存与性能开销
+>
+> 这条规则对于int, bool, float， double,char等内置类型不适用。它们已经很小了，能够放进cpu寄存器
+>
+> 此外，对于stl迭代器和函数对象也是采用值传递的方式，也不适用
+
+## 最小化#include依赖
+
+### 避免“无所不包型”头文件
+
+### 前置声明
+
+- 不需要知道类的大小。如果包含的类要作为成员变量或者打算从包含类派生子类，那么编译器需要知道类的大小
+- 没有引用类的任何成员方法。引用类的成员方法需要知道方法原型，及参数和返回值类型。
+- 没有引用任何成员变量，
+
+> 一般来说，只有在自己的类中，将某个类的对象作为数据成员使用时，或者需要继承某个类时，才应该包含那个类的头文件。
+>
+> 头文件应该#include或者前置声明其所有的依赖项
+
+### 冗余的#Include警戒语句
+
+```c++
+#ifndef INCLUDE_SRC_H
+#define INCLUDE_SRC_H
+
+#ifndef EXEC_TYPES_H
+#include <exec/types.h>
+#endif
+
+#endif
+```
+
+## 声明常量
+
+> 应使用extern声明全局作用域的常量，或者在类中以静态const 方式声明常量，然后再.cpp文件中定义常量值，这样就可以减少了包含这些头文件的模块的目标文件大小，更可取的方法是将这些常量隐藏再函数调用的背后。
+
+```C++
+class MyApi
+{
+public:
+    static int GetMaxNameLen();
+    static std::string GetLogFileName();
+};
+```
+
+> 缺点：不能再编译时计算const表达式的值，因为实际的值隐藏再cpp文件中了。
+>
+> C++11引入了constexpr关键字，可以解决这个问题；
+>
+> constexpr int GetTableSize(int elem){return elem * 2;}
+
+## 初始化列表
+
+> 使用构造函数初始化列表，从而为每个数据成员较少一次调用构造函数的开销，这些应该再cpp文件中声明，以便隐藏实现细节。
+
+注意事项：
+
+- 初始化列表中的变量顺序必须和类中指定的顺序一致
+- 不能再初始化列表中指定数组。
+- 如果声明的时派生类，那么每个基类的默认构造函数都会被隐式调用，如果指定了非默认构造函数，必须再调用任何成员变量之前调用基类构造函数。
+- 如果把成员变量声明为引用或const，那么就必须通过初始化列表来初始化它
+
+## 内存优化
+
+- 根据类型聚集成员变量
+- 除非比较，不要添加虚方法
+- 使用大小明确的类型，比如int32_t，int64_t
+
+## 除非需要，勿用内联
+
+- 暴露实现细节
+
+- 再客户应用程序中嵌入代码
+
+  api头文件的内联代码会直接编译进客户端应用，这意味着只要发布对内联代码的修改，客户端就必须重新编译其代码
+
+- 代码膨胀
+
+- 调试复杂化
+
+> 避免再公有头文件中使用内联代码，除非证明代码会导致性能问题，并确认内联可以解决改问题。
+>
+> boost头文件通常约定使用detail子命名空间（比如boost::tuples::detail）包含所有私有代码。这是从公有头文件中进一步分离私有代码的良好编程风格
+
+## 性能分析
+
+### 典型的分析工具
+
+- intel VTune：它包含二进制测量特性，基于时间和事件的采样，计数监控以及其他各种工具
+- gprof：是gnu的分析器，它使用二进制测量工具记录调用的次数和每一个函数花费的时间，它集成再gnu C++编译器中，可以使用-pg命令行选项激活。运行待测量的二进制文件时，当前目录下会生成一份数据文件，可以用gprof文件对齐分析。（mac os x下使用satrun应用程序）
+- OProfile：这时linux下的一款开源性能工具。
+- AMD CodeAnalyst：来自amd的免费分析器，适配windows和linux。基于OProfile
+- Open SpeedShop：这是一款linux上的开源性能测量工具。基于sgi的irix speedshop。支持并发和多线程程序，
+- sysprof：linux开源性能分析器。
+- CodeProphet Profile：免费的工具使用二进制测量机制
+- callgrind：他是Linux和mac 上valgrind的一部分。独立的KCachegrind工具可以用于可视化分析数据，可选的缓存模拟器可用于分析内存访问行为。
+
+### 基于内存的分析
+
+- ibm rational purify：商业的内存调试器，检测C++内存访问错误
+- valgrind：这个工具已有若干前端GUI程序（比如vakkyrie，alleyoop）可用于浏览器输出文件
+- Parasoft Insure++：商业的内存调试器
+- Coverity：静态分析工具，它能够检测源码而不必实际运行程序，他将所有潜在的编码错误记录到数据库中，并提供web界面，用来查看静态分析结果。
+
+### 多线程分析
+
+- Intel Thread Checker：window和Linux下的商业线程分析工具，用于发现逻辑线程错误，比如死锁，
+- Intel Parallel Studio：用来检查线程和内存错误的检查其工具，以及针对并行程序的性能分析工具
+- intel thread profile：
+- Helgrind和drd：valgrind测试框架下的模块，检测Pthread应用程序的同步错误。
+
+# 版本控制
+
+## 版本号
+
+### 版本号的意义
+
+- 主版本号：版本号的第一位，主版本号的修改表明api进行了重大修改
+- 次版本号：版本号的第二位，通常再主版本发布后设置为0，每当添加较小的特性或修正重大错误时这个数会增加，次版本号通常不应该涉及任何补钱荣的api修改。用户能够升级到新的次版本，而不必对自己的软件做任何的改动。
+- 补丁版本号（可选的）：第三个整数。每当发布对中欧广大错误或安全问题的修复补丁后这个数会增加，补丁版本号暗示现有的api接口没有修改，也就是只有api的行为有所改变。
+- 通常可以再版本号后添加一个符号来表明软件开发过程中的相关阶段，例如；1.0.0a是指alpha发布，1.0.0b是指beta发布，而1.0.0rc是指候选发布版。
+
+> 在苦命中包含api的主版本号时良好的编程实践，尤其时在做了一些不向后兼容的修改时，例如libFoo.so、libFoo2.so、libFoo3.so
+
+### 提供api的版本信息
+
+通用的做法：
+
+```C++
+// version.h
+#define API_MAJOR 1
+#define API_MINOR 2
+#define API_PATCH 0
+
+class Version
+{
+    public:
+    	static int GetMajor();
+    	static int GetMinor();
+    	static int GetPatch();
+    	static std::string GetVersion();
+    	// 允许用户执行版本对比，比如检查正在编译的api版本号是否大于某个版本
+    	static bool IsAtLeast(int major, int minor, int patch);
+   		// 指示某个特性是否存在
+    	static bool HasFeature(const std::string& name);
+}
+```
+
+## 软件分支策略
+
+### 分支策略
+
+- 每个项目都需要一条主干，项目源码的持久存储库
+
+- 每次版本发布，可由主感代码派生出分支
+
+- 如果需要为一个版本发布紧急补丁，可以为特定的“热修复补丁”（hotfix）创建新分支
+
+  ![](%E5%A4%A7%E8%A7%84%E6%A8%A1C++%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1.assets/%E5%88%86%E6%94%AF%E7%AD%96%E7%95%A5.PNG)
+
+  > 只在必要时再分支，尽量延迟创建分支的时机，尽量使用分支代码路线而非冻结代码路线，尽早且频繁的合并分支
+
+### api和并行分支
+
+- 制定开发分支的目标
+- 经常合并到主干中。
+- 审查过程
+
+## 兼容性级别
+
+### 向后兼容性
+
+是指一个api不需要用户做出任何改变就能完全取代上一版本的api，那么它就是向后兼容的。
+
+向后兼容性包括：
+
+- 功能兼容性
+- 源代码兼容性
+- 二进制兼容性
+
+数据导向的兼容性包括：
+
+- 客户、服务器端兼容性
+- 文件格式的兼容性
+- 通信协议的兼容性
+- 数据库模式的兼容性
+
+> 向后兼容性意味着使用第N版本的api的客户代码能够不加修饰的升级到第N+1版本。
+
+### 功能兼容性
+
+> 功能兼容性意味着第N+1版本的api的行为和第N版本一致。
+
+### 源代码兼容性
+
+> 源代码兼容性意味着用户使用第N版本的api编写的代码可以使用第N+1版本进行编译，而不用修改源代码
+
+### 二进制兼容性
+
+> 二进制兼容性意味着使用第N版本api编写的应用程序可以仅通过替换或重新连接api的新动态连接库，就可以升级到第N+1版本。
+
+二进制不兼容的api修改
+
+- 移除类，方法或函数
+- 增加，移除类中的成员变量，或者重新排序成员变量
+- 增加或移除一个类的基类
+- 修改稿任何成员变量的类型
+- 以任何方式修改已有方法的签名
+- 增减，移除模板参数，或者重新排序模板参数
+- 把非内联方法改为内联方法
+- 把非虚方法改成虚方法，反之亦然
+- 改变虚方法的顺序
+- 给没有虚方法的类增加虚方法
+- 增加新的虚方法（对于有些编译器，如果只是在已有的虚函数的后面添加，则可以兼容）
+- 覆盖已有的虚方法（这在某些情况下时可行的，但最哈哦避免这样做）
+
+二进制兼容的修改：
+
+- 增加新的类，非虚方法，或函数
+- 给类增加新的静态变量
+- 移除私有静态变量（前提时它们从来没有在内联方法中引用）
+- 移除非虚私有方法（前提时它们从来没有在内联方法中调用）
+- 修改内联方法的实现（要使用新的实现就必须重新编译）
+- 把内联方法修改为非内联（如果实现也被修改，则必须重新编译）
+- 修改方法的默认参数（要使用新的默认参数，则必须重新编译）
+- 给类增加或移除友元声明
+- 给类增加新的枚举
+- 给已存在的枚举增加新的枚举量
+- 使用位域中未声明的余留位
+
+实现二进制兼容性的进阶技巧：
+
+- 不要给已有的方法增加参数，可以定义改方法新的承载版本，着确保原有符号继续存在，同时也提供新的调用约定，在cpp文件中，老的方法实现可以直接调用新的重载方法
+- pimpl模式可以用来帮助保持接口的二进制兼容性，因为实现细节再cpp文件中
+- 采用纯c风格的api可以更容易的获得二进制兼容性，c不提供诸如继承，可选参数，重载，异常，模板等特性，为了利用c和C++的优势，可以选择使用面向对象的C++风格开发api，然后用纯C风格封装C++ api
+- 如果确实需要做二进制不兼容的修改，那么可以考虑为新的换个不同的名字，这样就不会破坏已有的应用程序。libz库采用这种方式，zlib.dll、zlib1.dll，其中1代表api的主版本号
+
+### 向前兼容性
+
+向前兼容意味着用户可以降级到之前的发布版本，代码无需修改，仍然能够正常工作。
+
+向前兼容的方法：
+
+- 如果你知道将来会给方法添加一个参数，那么可以使用前面第一个例子给出的技巧，也就是说，甚至可以再功能实现之前就添加参数，然后将参数标注为未使用
+- 如果预计将来会改用一种不同的内置类型，那么可以使用不透明的指针或typedef，二不要直接使用内置类型，如果，未float类型创建别名Real的typedef，这样就可以再api的未来版本中把typedef改为double，而不会告知api变化。
+- 数据驱动风格本来就是向前兼容的，仅接收arglist可变容器的方法再运行时本来就允许传入任何实参的集合，因为这种实现可以添加新的命名实参，而不必修改函数签名
+
+> 向前兼容意味者使用第N版本的api客户代码可以不加修改的降级到n-1版本
+
+## 怎样维护向后兼容性
+
+### 添加功能
+
+> 再api初始化版本发布后，不要为抽象基类添加新的纯虚函数
+
+### 修改功能
+
+- 再新同名函数的后面添加"Ex"后缀
+- 新函数引入另外一个名字。
+
+### 弃用功能
+
+- 在文档中进行标注，同时说明可以取代它的新功能
+- 使函数使用时产生警告信息，大多数编译器提供将类，方法或变量标记为“已弃用”方法，只要带上该标签，就会输出编译时警告
+
+```C++
+// deprecated.h
+
+#ifdef __GNUC__
+	#define DEPRECATED __attribute__((deprecated))
+#elif defined(__MSC_VER)
+	#define DEPRECATED __declspec(deprecated)
+#else
+	#define DEPRECATED
+	#pragma message("DEPRECATED is not defined for this compiler")
+#endif
+
+// MyClass.h
+class MyClass
+{
+public:
+	DEPRECATED std::string GetName();
+	int GetAge();
+};
+```
+
+除了提供编译时警告，还可以编写在运行时给出弃用警告的代码，这样就可以在警告信息中提供更多的信息，比如说明可以替代方式，例如，可以声明下面的函数，把它作为每一个需要弃用函数的第一条语句；
+
+```c++
+void Deprecated(const std::string oldFun, const std::string newFun="");
+...
+std::string MyClass::GetName()
+{
+	Deprecated("MyClass::GetName", "MyClass::GetFullName");
+	...
+}
+Deprecated的实现可以维护一个std::set，其中包含所有已经输出过警告的函数名，它支持在第一次调用的时候才输出警告，Noel Llopis在它的Game Gem中描述了类似的技巧，只不过它的解决方案还记录了不重复的调用点数量，并在程序执行结束时把警告批量输出到独立的报告文件中。
+```
+
+## api审查
+
+### api审查的目的
+
+- 维护向后兼容性
+- 维护设计一致性
+- 对修改加以控制
+- 支持未来改进
+- 重新审视解决方案
+
+### api预发布审查
+
+审查会议的参与者
+
+- 产品拥有者：是指对产品计划总体负责并代表客户提出需求的人。
+- 技术领导者：审查会提出诸如为什么添加特定的修改，修改是否以最佳方式实现之类的问题
+- 文档领导者：api不仅仅时代码，它也包括文档。
+
+api审查过程中应该关注交付的接口，而不是代码的细节，可以使用工具报告当前api和上一版本之间的区别，比如api Diff（apidiff.com）不过已经弃用了
+
+对于每一处的修改，审查委员会都应该询问的问题：
+
+- 破坏了向后兼容性码？
+- 是否破坏了二进制兼容性？（如果需要确保二进制兼容性）
+- 这项修改的文档齐全码？
+- 这项修改可以用更不易过时的方法实现码？
+- 这项修改对性能有负面影响码？
+- 这项修改破坏了架构模型码？
+- 这项修改遵循api编码规范码？
+- 这项修改会在代码中引入循环依赖码？
+- api修改是否应该包含升级脚本，以帮助客户更新代码和数据文件？
+- 对修改后的代码有没有现存的自动化测试，已验证功能兼容性有没受到影响
+- 修改需要自动化测试码？是否已经编写
+- 这项修改时我们想发布给客户的码
+- 用于演示新api的样例代码存在码？
+
+### api预提交审查
+
+api预提交审查会议是最后一道防线，以确保非预期的修改不会发布给用户。
+
+变更请求的流程：
+
+- 描述变量内容及其必要性
+- 分析对api所有客户的影响
+- 给出api新版本的迁移指南
+- 更新向后兼容性测试用例
+
+这随后架构委员会将进行审查，它们可以批准或拒绝变更请求，并给出做出决定的基本理由，一旦批准，开发者就可以提交对代码，文档以及测试的更新了。
+
+# 文档
+
+## 编写文档的理由
+
+### 定义行为
+
+api是一种功能规范，它应该定义怎样使用接口，以及接口的行为是怎样的，仅仅查看头文件，就知道参数的数目，类型以及返回值的类型，但是它没有说明该方法的行为。
+
+### 为接口契约编写文档
+
+主要原理包括：
+
+- 前置条件：在调用函数之前，客户负责保证满足函数所需的前置条件，如果前置条件没有得到满足，函数就不能正常执行
+- 后置条件：函数保证在工作完成后满足特定的条件，如果后置条件没有满足，那么函数就没有正确完成工作/
+- 类的不定式：类的每个实例必须满足的约束条件，它定义了那些根据类的设计，在执行时必须保持为真的状态。
+
+例如：平方根函数的前置条件时输入数字必须为整数或零。后置条件时函数结果的平方应该等于输入的数字（允许适当的误差）
+
+```c++
+/// 
+/// \brief 计算浮点数的平方值
+/// \pre value >= 0
+/// \post fabs((result * result) - value ) < 0.001
+///
+double SquareRoot(double value);
+```
+
+> 契约编程意味者为函数的前置条件，后置条件，以及类的不变式编写文档
+
+### 告知行为的改变
+
+```C++
+/// 返回层次结构中的子节点列表
+///
+/// \return 以nuLl结尾的子节点列表
+/// 如果不存在子节点，则返回null
+///
+const Node* GetChildren()const;
+```
+
+根据文档说明，如果层次结构中没有子节点则返回Null指针，这种行为就要求客户检查返回值。
+
+### 文档涉及的内容
+
+一个特别贴切的例子时每n秒调用一次客户代码的计时器类，你可能在文档中说明时间间隔的单位是秒，但还应该说明以下客户关心问题。
+
+- 时间是指真实世界的时间（钟表时间），还是处理时间？
+- 计时器的准确性如何？
+- api的其他操作会影响到计时器的准确性码？会阻塞计时器码？
+- 计时器会随着时间的推移发生偏移码？它总是相对于起始时间触发码？
+
+定义这些额外的特性有助于用户确定改类是否适用于它们的任务，例如，对于只需近似每秒执行一些琐碎工作的空闲任务，用户并不关心是在1.0秒还是1.1秒后唤醒，然而在同样的条件下，对于一个模拟时钟，如果每次调用时都走值，那么它很快就会显式错误的时间
+
+在创作类和函数的文档时，应该考虑以下问题：
+
+- 类是对什么东西的抽象？
+- 有效的输入是什么？例如，可以传入null指针码？
+- 有效的返回类型是什么？例如，什么时候返回真或假
+- 需要检查哪些错误条件？例如，是否检查文件存在与否
+- 是否具有前置条件，后置条件和副作用？
+- 是否具有未定义的行为？比如，sqrt(-1,0)?
+- 是否抛出任何异常
+- 是线程安全的码？
+- 各个参数的单位是什么？
+- 空间复杂度，时间复杂度如何？例如，O(log n)，还是O(n~2)？
+- 内存所有权模型是什么？例如，是调用者负责删除所有返回对象？
+- 虚方法是否调用类中的其他方法？也就是说，当客户在派生类中覆盖方法时，应该调用哪些方法？
+- 有没有相关函数需要交叉引用？
+- 某特性时在api的哪个版本中添加的？
+- 某方法是否已被弃用，如果是，替代方式是什么？
+- 某特性是否存在已知的编程错误？
+- 是否希望分享未来的改进计划？
+- 能否提供任何示例代码？
+- 文档是否带来了额外的价值或见解？
+
+> 文档的品质包括：
+>
+> - 完整
+> - 一致
+> - 易于访问
+> - 没有重复
+>
+> 为api的每个公有元素编写文档
+
+## 文档的类型
+
+### 自动生成的api文档
+
+> 使用自动生成文档的工具，从头文件注释中提取api文档
+
+很多工具可以根据C++源码的注释创建api文档，它们通常生成不同格式的输出，比如html,pdf
+
+- AutoDuck
+- CcDoc
+- CppDoc
+- Doc-O-Matic
+- Doc++
+- Ooxygen
+- GenHelp
+- HeaderDoc
+- Help Genarator
+- KDOC
+- ROBODoc
+- TwinText
+
+### 概述文档
+
+除了自动生成的api文档外，还应该人工编写提供有关api更高层次信息的文档，这通常包括api能够做什么，用户为什么应该关注它，这类概述性文档涵盖：
+
+- api高层次的概念视图：api解决什么问题？他是如何工作的？如果可能，使用图表效果会很好
+- 关键概念，特性和术语
+- 使用api的系统需求
+- 如何下载，安装和配置软件
+- 如何提供反馈信息，报告错误
+- 对api声明周期各个阶段的阐述，例如预发布，维护，稳定性和弃用
+
+### 示例和教程
+
+包括的内容：
+
+- 简短的示例；提供简短的代码片段，以便展示api的关键功能，这些代码通常不能通过编译，它们省略了所有相关样本代码，只关注api调用方法
+- 可运行的演示；他是一个完整的，现实世界的例子
+- 教程和演练；教程展示了解决问题的步骤，而不是仅给出最终结果，
+- 用户贡献；用户可能会提供一些很好的示例，应该鼓励，将其添加到演示代码集合中，这些代码可以放置在专门的contirb目录下，表示你不对它们提供支持/
+- 常见问题（FAQ）；让用户快速而容易获知api是否满足其需求
+
+### 发布说明
+
+首次发布以后，买俄格版本都应该包含发布说明，他告诉用户自上次发布以来，有哪些改动，发布说明通常是一份间接的文档，主要包括：
+
+- 发布概述，包括对新特性以及改版本关注点的描述，例如，只修复了一些错误
+- 指向改发布版本位置的连接
+- 指出相比上次发布版本有何源代码或二进制不兼容之处
+- 改发布版修复的错误列表
+- 弃用或移除的特性列表
+- 针对api中所有修改的迁移提示，比如怎样是哟个发布版本中提供的升级脚本
+- 所有已知问题，包括在改版本中引入的问题，以及之前版本遗留的问题
+- 针对已知问题的解决方法提示
+- 有关用户如何发送反馈和错误报告的信息
+
+### 授权信息
+
+授权分类
+
+| 授权协议名          | 描述                                                         |
+| ------------------- | ------------------------------------------------------------ |
+| 无授权信息          | 用户无权合法使用api，除非向你请求授权                        |
+| GNU GPL             | 意味着任何衍生作品也必须是GPL授权分发的，因此开源的GPL库不能用于专有产品 |
+| GNU LGPL            | 允许把开源的api以二进制的形式连接到专有代码，衍生作品可以在，某些特定条件下分发，比如提供修改或未修改的LPGL库源码，以及其他约束 |
+| BSD                 | 连接了BSD授权的专有代码可以自由分发                          |
+| MIT/X11             | 可以自由分发                                                 |
+| Mozilla公共授权协议 | 允许使用开源库构建专有软件，任何修改过的代码必须以MPL授权重新分发 |
+| apache授权          | 允许分发基于apache授权代码的专有软件                         |
+
+## 文档可用性
+
+涵盖的内容：
+
+- 索引页
+- 一致的视图和体验
+- 代码示例
+- 图表
+- 搜索
+- 面包屑导航
+- 术语解释
+
+## 使用Doxygen
+
+支持c、C++、oc、java、python、C#、php
+
+doxygen是开源的，包括windows，mac，linux
+
+### 配置文件
+
+基于键值对格式的ascii文本唔见，可以通过-g命令行参数运行Doxygen生成默认配置文件，通常配置的条目如下：
+
+```c
+PROJECT_NAME=<NAME OF YOUR PROJECT>
+FULL_PATH_NAMES=NO
+TAB_SIZE=4
+FILE_PATTERNS=*.h *.hpp *.dox
+RECURSIVE=YES
+HTML_OUTPUT=apidocs
+GENERATE_LATEX=NO
+```
+
+完成这些初始化配置后，就可以在源码目录下运行Doxygen了，Doxygen会在哪里创建apidocs目录
+
+### 注释风格和命令
+
+注释风格如下：
+
+```c++
+/**
+ * ...文本...
+ */
+ 
+ ///
+ ///...文本...
+ ///
+ 
+ 等，///风格比较好用
+```
+
+常用的命令：
+
+- \file [文件名]
+- \class <类名>[<头文件>] [<头文件>]
+- \brief <简要说明>
+- \author <作者列表>
+- \data <日期描述>
+- \param <参数名> <描述>
+- \param[in] <输入参数名> <描述>
+- \param[out] <输出参数名> <描述>
+- \param[in,out] <输入/输出参数名> <描述>
+- \return <返回结果描述>
+- \code <代码块> \endcode
+- \verbatim <字面文本块> \endverbatim
+- \exception <异常对象> <描述>
+- \deprecated <解释及替代品>
+- \attention <需要注意的消息>
+- \warning <警告消息>
+- \since <新实体加入后的日期或api版本号>
+- \version <版本字符串>
+- \bug <缺陷描述>
+- \see <对其他方法或类的交叉引用>
+
+除了这些命令，Doxygen还支持多种格式化命令，用来改变下一个单词的风格，包括\b（粗体）、\c（打印体）、\e（斜体）。还可以使用\n强制换行，使用\\\\输入反斜杠字符，使用\@输入@
+
+### api注释
+
+还支持\mainpage注释未整个api制定概述文档，这些描述会生成在文档的首页，通常把这些注释保存在单独的文件中，比如overview.dox（需要更新doxygen配置文件中的FILE_PATTERNS字段，使之包含*.dox）
+
+如果概述文件中的文本很长，可以使用\section、\subsection命令引入小节，甚至可以为api的特定部分创建包含更详细描述的独立页面，这可以通过\page命令完成。
+
+同时，可以为文件处理，容器，日志，版本，等类及其所属文件分别创建分组，可以通过\defgroup声明分组。然后使用\ingroup将任意制定元素加入分组
+
+下面的注释综合了这些特性，为一个api提供了概述文档，它分为3个小节，并且交叉引用了两个其他页面以提供更详细的描述，页面包含了一个连接，可以查看所有被标记为特定分组的api元素
+
+```c++
+///
+/// \mainpage API Documention
+/// 
+/// \section sec_Contents Contents
+/// 
+/// \li \ref sec_Overview
+/// \li \ref sec_Detail
+/// \li \ref sec_SeeAlso
+///
+/// \section sec_Overview Overview
+///
+/// 这里是概述文本
+/// 
+/// \section sec_Detail Detaild Description
+///
+/// 这里是更详细的描述
+///
+/// \section sec_SeeAlso See Also
+///
+/// \li \ref page_Logging
+/// \li \ref page_Versioning
+///
+///
+/// \page page_Logging The Logging System
+///
+/// 日志功能描述
+/// 
+/// \link group_Loggine View All Logging Classes \endlink
+///
+///
+/// \page page_Versioning API Versionning
+///
+/// API版本描述
+///
+/// \link group_Versioning View All Versionning Classes \endlink
+///
+
+/// \defgroup group_Logging Diagnostic logging features
+// Sed \ref page_Logging for a detaled description.
+
+/// \defgroup group_Versioning Versionning System
+/// Sedd \ref page_Versioning for a detaled description.
+
+```
+
+### 文件注释
+
+可以在每个头文件的顶部放置一些注释，作为整个模块的文档。示例：
+
+```c++
+///  
+/// \file <文件名>
+///
+/// \brief <简要描述>
+///
+/// \author <作者姓名列表>
+/// \date <日期描述>
+/// \since <添加本模块时的api版本>
+///
+/// <模块描述>
+///
+/// <授权和版本信息>
+///
+
+```
+
+如果希望改文件巴汗已定义的分组功能，那么可以在注释中再添加\ingroup命令
+
+### 类注释
+
+头文件中的每个类也可以有注释，描述类的整体目标。示例如下，如果类属于已定义的分组，可以包含\ingroup命令；如若类已废弃，可以用\deprecated命令。如果提供一些示例代码，可以使用\code...\endcode命令
+
+```c++
+/// 
+/// \clss <类名> [头文件] [头文件名]
+///
+/// \brief <简要说明>
+///
+/// <详细说明>
+///
+/// \author <作者、姓名列表>
+/// \date <日期描述>
+/// \since <添加本类时的api版本>
+/// 
+```
+
+### 方法注释
+
+```
+/// 
+/// \brief <简要说明>
+///
+/// <详细说明>
+///
+/// \param[in] <输入参数名> <描述>
+/// \param[out] <输出参数名> <描述>
+/// \return <返回值描述>
+/// \since <添加本方法时的api版本>
+/// \see <参考(see also )方法列表>
+/// \note <关于本方法的可选说明>
+///
+```
+
+如果类中有多个方法属于一个或多个逻辑分组，那么可以告知Doxygen，使之把相关的方法归入一个具名的小节。这样就可以更加合理的组织类成员，例如：
+
+```C++
+class Test
+{
+public:
+	/// \name <组1名称>
+	//@{
+	void Method1InGroup1();
+	void Method12InGroup1();
+	//@}
+	
+	/// \name <组2名称>
+	//@{
+	void Method1InGroup2();
+	void Method12InGroup2();
+	//@}
+	
+};
+```
+
+### 枚举类型
+
+```C++
+/// 
+/// \brief <简要描述>
+/// 
+/// <详细秒时>
+///
+enum MyEnum{
+	ENUM_1, /// <枚举值1的描述>
+	ENUM_2, /// <枚举值2的描述>
+	ENUM_3, /// <枚举值3的描述>
+}
+```
+
+### 带有文档的示例头文件
+
+```c++
+/// -*- tab-width: 4; c-basic-offset: 4; indent-tabs-mode: t -*-
+///
+/// \file    version.h
+///
+/// \brief   Access the API's version information.
+///
+/// \author  Martin Reddy
+/// \date    2010-07-07
+/// \since   1.0
+/// \ingroup group_Versioning
+///
+/// Copyright (c) 2010, Martin Reddy. All rights reserved.
+///
+
+#ifndef VERSION_H
+#define VERSION_H
+
+#include <string>
+
+///
+/// \class Version version.h API/version.h
+///
+/// \brief Access the version information for the API
+///
+/// For example, you can get the current version number as
+/// a string using \c GetVersion, or you can get the separate
+/// major, minor, and patch integer values by calling
+/// \c GetMajor, \c GetMinor, or \c GetPatch, respectively.
+///
+/// This class also provides some basic version comparison
+/// functionality and lets you determine if certain named
+/// features are present in your current build.
+///
+/// \author Martin Reddy
+/// \date   2010-07-07
+/// \since 1.0
+///
+class Version
+{
+public:
+	/// \name Version Numbers
+	//@{
+	///
+	/// \brief Return the API major version number.
+	/// \return The major version number as an integer.
+	/// \since 1.0
+	///
+	static int GetMajor();
+
+	///
+	/// \brief Return the API minor version number.
+	/// \return The minor version number as an integer.
+	/// \since 1.0
+	///
+	static int GetMinor();
+
+	///
+	/// \brief Return the API patch version number.
+	/// \return The patch version number as an integer.
+	/// \since 1.0
+	///
+	static int GetPatch();
+
+	///
+	/// \brief Return the API full version number.
+	/// \return The version string, e.g., "1.0.1".
+	/// \since 1.0
+	///
+	static std::string GetVersion();
+	//@}
+
+	/// \name Version Number Math
+	//@{
+	///
+	/// \brief Compare the current version number against a specific
+	///        version.
+	///
+	/// This method let's you check to see if the current version
+	/// is greater than or equal to the specified version. This may
+	/// be useful to perform operations that require a minimum
+	/// version number.
+	///
+	/// \param[in] major The major version number to compare against
+	/// \param[in] minor The minor version number to compare against
+	/// \param[in] patch The patch version number to compare against
+	/// \return Returns true if specified version >= current version
+	/// \since 1.0
+	///
+	static bool IsAtLeast(int major, int minor, int patch);
+	//@}
+
+	/// \name Feature Tags
+	//@{
+	///
+	/// \brief Test whether a feature is implemented by this API.
+	///
+	/// New features that change the implementation of API methods
+	/// are specified as a "feature tag". This method lets you 
+	/// query the API to find out if a given feature is available.
+	///
+	/// \param[in] name The feature tag name, e.g., "LOCKING"
+	/// \return Returns true if the named feature is available.
+	/// \since 1.0
+	///
+	static bool HasFeature(const std::string &name);
+	//@}
+};
+
+#endif
+
+```
+
+
+
+# cmake编译api 接口设计中的源码
+
+## Build System
+
+I have used the cross-platform CMake build system to facilitate compiling and linking the examples, so they should work on Windows, Mac OS X, and most UNIX operating systems. You will need to download and install CMake for your platform first though, if you don’t already have it installed:
+
+- http://www.cmake.org/
+
+## Building From The Command Line (Linux/Mac/Windows)
+
+With the ‘cmake’ command in your path, you can simply do the following to create a set of Makefiles for your platform and then build all of the examples. This should work from a Linux shell, a Mac OS X Terminal, or a Cygwin shell on Windows (when using Cygwin you should use Cygwin’s /usr/bin/cmake version of CMake).
+
+```
+% cd <source-code-root-dir>
+% mkdir build
+% cd build
+% cmake -G "Unix Makefiles" ..
+% make
+```
+
+**Note**, you can also run the `configure.sh` script in the root directory to create the build directory and perform the cmake command for you.
+
+## Building With XCode on Mac OS X
+
+If you prefer to use the XCode IDE on the Mac rather than compile from the Terminal, then you can simply do the following:
+
+```
+% cd <source-code-root-dir>
+% mkdir build
+% cd build
+% cmake -G "Xcode" ..
+% open APIBook.xcodeproj
+```
+
+You can then build, run, and debug all of the examples from within XCode.
+
+## Build With Visual Studio on Windows
+
+If you’re on Windows then you can configure and build the examples using Visual Studio as follows:
+
+1. Run the CMake GUI
+2. Specify the root directory of this package as the source location
+3. Create a ‘build’ subdirectory and specify that as the build location
+4. Press the “Configure” button (you may have to press it twice)
+5. Press the “Generate” button
+
+This should generate a Visual Studio solution file called `APIBook.sln` in the build directory that you specified. You can open that file in Visual Studio to build, run, and debug the examples.
