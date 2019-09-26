@@ -1,0 +1,918 @@
+
+<!DOCTYPE HTML>
+<html lang="" >
+    <head>
+        <meta charset="UTF-8">
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <title>linux基本知识 · GitBook</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="description" content="">
+        <meta name="generator" content="GitBook 3.2.3">
+        
+        
+        
+    
+    <link rel="stylesheet" href="../../gitbook/style.css">
+
+    
+            
+                
+                <link rel="stylesheet" href="../../gitbook/gitbook-plugin-expandable-chapters/expandable-chapters.css">
+                
+            
+                
+                <link rel="stylesheet" href="../../gitbook/gitbook-plugin-highlight/website.css">
+                
+            
+                
+                <link rel="stylesheet" href="../../gitbook/gitbook-plugin-search/search.css">
+                
+            
+                
+                <link rel="stylesheet" href="../../gitbook/gitbook-plugin-fontsettings/website.css">
+                
+            
+        
+
+    
+
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+
+        
+    
+    
+    <meta name="HandheldFriendly" content="true"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="apple-touch-icon-precomposed" sizes="152x152" href="../../gitbook/images/apple-touch-icon-precomposed-152.png">
+    <link rel="shortcut icon" href="../../gitbook/images/favicon.ico" type="image/x-icon">
+
+    
+    <link rel="next" href="shell编程.html" />
+    
+    
+    <link rel="prev" href="makefile.html" />
+    
+
+    </head>
+    <body>
+        
+<div class="book">
+    <div class="book-summary">
+        
+            
+<div id="book-search-input" role="search">
+    <input type="text" placeholder="Type to search" />
+</div>
+
+            
+                <nav role="navigation">
+                
+
+
+<ul class="summary">
+    
+    
+
+    
+
+    
+        
+        
+    
+        <li class="chapter " data-level="1.1" data-path="../../">
+            
+                <a href="../../">
+            
+                    
+                    000-前言
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.2" data-path="../../100-存档/">
+            
+                <a href="../../100-存档/">
+            
+                    
+                    100-存档
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.2.1" data-path="../../100-存档/大学生活.html">
+            
+                <a href="../../100-存档/大学生活.html">
+            
+                    
+                    大学生活
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3" data-path="../../200-inbox体系/">
+            
+                <a href="../../200-inbox体系/">
+            
+                    
+                    200-inbox体系
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.3.1" data-path="../../200-inbox体系/灵感.html">
+            
+                <a href="../../200-inbox体系/灵感.html">
+            
+                    
+                    灵感
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3.2" data-path="../../200-inbox体系/书籍.html">
+            
+                <a href="../../200-inbox体系/书籍.html">
+            
+                    
+                    书籍
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.3.3" data-path="../../200-inbox体系/微信.html">
+            
+                <a href="../../200-inbox体系/微信.html">
+            
+                    
+                    微信
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.4" data-path="../../300-工作/">
+            
+                <a href="../../300-工作/">
+            
+                    
+                    300-工作
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.4.1" data-path="../../300-工作/tt/">
+            
+                <a href="../../300-工作/tt/">
+            
+                    
+                    tt
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.4.1.1" data-path="../../300-工作/tt/常用网址.html">
+            
+                <a href="../../300-工作/tt/常用网址.html">
+            
+                    
+                    常用网址
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.5" data-path="../../400-生活/">
+            
+                <a href="../../400-生活/">
+            
+                    
+                    400-生活
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.6" data-path="../../500-兴趣/">
+            
+                <a href="../../500-兴趣/">
+            
+                    
+                    500-兴趣
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.7" data-path="../">
+            
+                <a href="../">
+            
+                    
+                    600-学习
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.7.1" data-path="../610-实用技巧/">
+            
+                <a href="../610-实用技巧/">
+            
+                    
+                    610-实用技巧
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.7.1.1" data-path="../610-实用技巧/网络抓包.html">
+            
+                <a href="../610-实用技巧/网络抓包.html">
+            
+                    
+                    网络抓包
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.7.1.2" data-path="../610-实用技巧/gdb调试.html">
+            
+                <a href="../610-实用技巧/gdb调试.html">
+            
+                    
+                    gdb调试
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.7.1.3" data-path="../610-实用技巧/linux常用网络工具.html">
+            
+                <a href="../610-实用技巧/linux常用网络工具.html">
+            
+                    
+                    linux常用网络工具
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.7.1.4" data-path="../610-实用技巧/linux常用服务的部署.html">
+            
+                <a href="../610-实用技巧/linux常用服务的部署.html">
+            
+                    
+                    Linux常用服务的部署
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.7.1.5" data-path="../610-实用技巧/git常用命令.html">
+            
+                <a href="../610-实用技巧/git常用命令.html">
+            
+                    
+                    git 常用命令
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.7.1.6" data-path="../610-实用技巧/window运行工具.html">
+            
+                <a href="../610-实用技巧/window运行工具.html">
+            
+                    
+                    window运行工具
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.7.1.7" data-path="../610-实用技巧/vs2013常用技巧.html">
+            
+                <a href="../610-实用技巧/vs2013常用技巧.html">
+            
+                    
+                    vs2013常用技巧
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.7.2" data-path="../620-程序设计与架构/">
+            
+                <a href="../620-程序设计与架构/">
+            
+                    
+                    620-程序设计与架构
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.7.2.1" data-path="../620-程序设计与架构/大规模C++程序设计.html">
+            
+                <a href="../620-程序设计与架构/大规模C++程序设计.html">
+            
+                    
+                    大规模C++程序设计
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.7.3" data-path="../640-网络编程/">
+            
+                <a href="../640-网络编程/">
+            
+                    
+                    640-网络编程
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.7.3.1" data-path="../640-网络编程/游戏服务器架构与设计.html">
+            
+                <a href="../640-网络编程/游戏服务器架构与设计.html">
+            
+                    
+                    游戏服务器架构与设计
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.7.3.2" data-path="../640-网络编程/linux多线程服务器编程.html">
+            
+                <a href="../640-网络编程/linux多线程服务器编程.html">
+            
+                    
+                    linux多线程服务器编程
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.7.4" data-path="./">
+            
+                <a href="./">
+            
+                    
+                    630-编程总结
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.7.4.1" data-path="c++总结.html">
+            
+                <a href="c++总结.html">
+            
+                    
+                    c++总结
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.7.4.2" data-path="数据库总结.html">
+            
+                <a href="数据库总结.html">
+            
+                    
+                    数据库总结
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.7.4.3" data-path="makefile.html">
+            
+                <a href="makefile.html">
+            
+                    
+                    makefile
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter active" data-level="1.7.4.4" data-path="linux基础知识.html">
+            
+                <a href="linux基础知识.html">
+            
+                    
+                    linux基本知识
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.7.4.5" data-path="shell编程.html">
+            
+                <a href="shell编程.html">
+            
+                    
+                    shell编程
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.7.4.6" data-path="keil配置.html">
+            
+                <a href="keil配置.html">
+            
+                    
+                    keil配置
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.7.4.7" data-path="gcc相关.html">
+            
+                <a href="gcc相关.html">
+            
+                    
+                    gcc相关
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.7.4.8" data-path="网络架构.html">
+            
+                <a href="网络架构.html">
+            
+                    
+                    网络架构
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.7.5" data-path="../650-实战项目/">
+            
+                <a href="../650-实战项目/">
+            
+                    
+                    650-实战项目
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.7.5.1" data-path="../650-实战项目/网络爬虫.html">
+            
+                <a href="../650-实战项目/网络爬虫.html">
+            
+                    
+                    网络爬虫
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.7.5.2" data-path="../650-实战项目/项目实战经验.html">
+            
+                <a href="../650-实战项目/项目实战经验.html">
+            
+                    
+                    项目实战经验
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+        <li class="chapter " data-level="1.7.6" data-path="../660-参考源码/">
+            
+                <a href="../660-参考源码/">
+            
+                    
+                    660-参考源码
+            
+                </a>
+            
+
+            
+        </li>
+    
+        <li class="chapter " data-level="1.7.7" data-path="../670-金融/">
+            
+                <a href="../670-金融/">
+            
+                    
+                    670-金融
+            
+                </a>
+            
+
+            
+            <ul class="articles">
+                
+    
+        <li class="chapter " data-level="1.7.7.1" data-path="../670-金融/671-价值投资笔记-林奇.html">
+            
+                <a href="../670-金融/671-价值投资笔记-林奇.html">
+            
+                    
+                    价值投资
+            
+                </a>
+            
+
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+
+            </ul>
+            
+        </li>
+    
+
+    
+
+    <li class="divider"></li>
+
+    <li>
+        <a href="https://www.gitbook.com" target="blank" class="gitbook-link">
+            Published with GitBook
+        </a>
+    </li>
+</ul>
+
+
+                </nav>
+            
+        
+    </div>
+
+    <div class="book-body">
+        
+            <div class="body-inner">
+                
+                    
+
+<div class="book-header" role="navigation">
+    
+
+    <!-- Title -->
+    <h1>
+        <i class="fa fa-circle-o-notch fa-spin"></i>
+        <a href="../.." >linux基本知识</a>
+    </h1>
+</div>
+
+
+
+
+                    <div class="page-wrapper" tabindex="-1" role="main">
+                        <div class="page-inner">
+                            
+<div id="book-search-results">
+    <div class="search-noresults">
+    
+                                <section class="normal markdown-section">
+                                
+                                <p>[TOC]</p>
+<h1 id="linux&#x57FA;&#x672C;&#x77E5;&#x8BC6;">linux&#x57FA;&#x672C;&#x77E5;&#x8BC6;</h1>
+<ul>
+<li>linux&#x7CFB;&#x7EDF;&#x5783;&#x573E;&#x6876;&#xFF0C;/dev/null &#x662F;linux&#x4E0B;&#x7684;&#x4E00;&#x4E2A;&#x8BBE;&#x5907;&#x6587;&#x4EF6;&#xFF0C;&#x8FD9;&#x4E2A;&#x6587;&#x4EF6;&#x7C7B;&#x4F3C;&#x4E8E;&#x4E00;&#x4E2A;&#x5783;&#x573E;&#x6876;&#xFF0C;&#x7279;&#x70B9;&#x662F;&#xFF1A;&#x5BB9;&#x91CF;&#x65E0;&#x9650;&#x5927;</li>
+</ul>
+<h1 id="&#x5E38;&#x7528;&#x547D;&#x4EE4;">&#x5E38;&#x7528;&#x547D;&#x4EE4;</h1>
+<h2 id="&#x547D;&#x4EE4;&#x7684;&#x4F7F;&#x7528;&#x65B9;&#x6CD5;">&#x547D;&#x4EE4;&#x7684;&#x4F7F;&#x7528;&#x65B9;&#x6CD5;</h2>
+<p><strong>linux&#x547D;&#x4EE4;&#x683C;&#x5F0F;</strong></p>
+<pre><code class="lang-shell">command  [-options]  [parameter1]  &#x2026; 
+&#x8BF4;&#x660E;&#xFF1A;
+&#xF06C;    command&#xFF1A;&#x547D;&#x4EE4;&#x540D;&#xFF0C;&#x76F8;&#x5E94;&#x529F;&#x80FD;&#x7684;&#x82F1;&#x6587;&#x5355;&#x8BCD;&#x6216;&#x5355;&#x8BCD;&#x7684;&#x7F29;&#x5199;
+&#xF06C;    [-options]&#xFF1A;&#x9009;&#x9879;&#xFF0C;&#x53EF;&#x7528;&#x6765;&#x5BF9;&#x547D;&#x4EE4;&#x8FDB;&#x884C;&#x63A7;&#x5236;&#xFF0C;&#x4E5F;&#x53EF;&#x4EE5;&#x7701;&#x7565;&#xFF0C;[]&#x4EE3;&#x8868;&#x53EF;&#x9009;
+&#xF06C;    parameter1 &#x2026;&#xFF1A;&#x4F20;&#x7ED9;&#x547D;&#x4EE4;&#x7684;&#x53C2;&#x6570;&#xFF0C;&#x53EF;&#x4EE5;&#x662F;&#x96F6;&#x4E2A;&#x4E00;&#x4E2A;&#x6216;&#x591A;&#x4E2A;
+</code></pre>
+<h3 id="&#x67E5;&#x770B;&#x5E2E;&#x52A9;&#x6587;&#x6863;">&#x67E5;&#x770B;&#x5E2E;&#x52A9;&#x6587;&#x6863;</h3>
+<h4 id="-help">--help</h4>
+<p>&#x4E00;&#x822C;&#x662F; Linux &#x547D;&#x4EE4;&#x81EA;&#x5E26;&#x7684;&#x5E2E;&#x52A9;&#x4FE1;&#x606F;&#xFF0C;&#x5E76;&#x4E0D;&#x662F;&#x6240;&#x6709;&#x547D;&#x4EE4;&#x90FD;&#x81EA;&#x5E26;&#x8FD9;&#x4E2A;&#x9009;&#x9879;&#x3002;&#x5982;&#x6211;&#x4EEC;&#x60F3;&#x67E5;&#x770B;&#x547D;&#x4EE4; ls &#x7684;&#x7528;&#x6CD5;&#xFF1A;<strong>ls --help</strong></p>
+<h4 id="man">man</h4>
+<pre><code class="lang-shell">1&#xFF0E;Standard commands&#xFF08;&#x6807;&#x51C6;&#x547D;&#x4EE4;&#xFF09;
+2&#xFF0E;System calls&#xFF08;&#x7CFB;&#x7EDF;&#x8C03;&#x7528;&#xFF0C;&#x5982;open,write&#xFF09;
+3&#xFF0E;Library functions&#xFF08;&#x5E93;&#x51FD;&#x6570;&#xFF0C;&#x5982;printf,fopen&#xFF09;
+4&#xFF0E;Special devices&#xFF08;&#x8BBE;&#x5907;&#x6587;&#x4EF6;&#x7684;&#x8BF4;&#x660E;&#xFF0C;/dev&#x4E0B;&#x5404;&#x79CD;&#x8BBE;&#x5907;&#xFF09;
+5&#xFF0E;File formats&#xFF08;&#x6587;&#x4EF6;&#x683C;&#x5F0F;&#xFF0C;&#x5982;passwd&#xFF09;
+6&#xFF0E;Games and toys&#xFF08;&#x6E38;&#x620F;&#x548C;&#x5A31;&#x4E50;&#xFF09;
+7&#xFF0E;Miscellaneous&#xFF08;&#x6742;&#x9879;&#x3001;&#x60EF;&#x4F8B;&#x4E0E;&#x534F;&#x5B9A;&#x7B49;&#xFF0C;&#x4F8B;&#x5982;Linux&#x6863;&#x6848;&#x7CFB;&#x7EDF;&#x3001;&#x7F51;&#x7EDC;&#x534F;&#x5B9A;&#x3001;ASCII &#x7801;&#xFF1B;environ&#x5168;&#x5C40;&#x53D8;&#x91CF;&#xFF09;
+8&#xFF0E;Administrative Commands&#xFF08;&#x7BA1;&#x7406;&#x5458;&#x547D;&#x4EE4;&#xFF0C;&#x5982;ifconfig&#xFF09;
+</code></pre>
+<p><strong>man&#x4F7F;&#x7528;&#x683C;&#x5F0F;&#x5982;&#x4E0B;&#xFF1A;</strong></p>
+<pre><code class="lang-shell">man [&#x9009;&#x9879;]  &#x547D;&#x4EE4;&#x540D;
+</code></pre>
+<p><strong>man&#x8BBE;&#x7F6E;&#x4E86;&#x5982;&#x4E0B;&#x7684;&#x529F;&#x80FD;&#x952E;&#xFF1A;</strong></p>
+<table>
+<thead>
+<tr>
+<th><strong>&#x529F;&#x80FD;&#x952E;</strong></th>
+<th><strong>&#x529F;&#x80FD;</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>&#x7A7A;&#x683C;&#x952E;</td>
+<td>&#x663E;&#x793A;&#x624B;&#x518C;&#x9875;&#x7684;&#x4E0B;&#x4E00;&#x5C4F;</td>
+</tr>
+<tr>
+<td>Enter&#x952E;</td>
+<td>&#x4E00;&#x6B21;&#x6EDA;&#x52A8;&#x624B;&#x518C;&#x9875;&#x7684;&#x4E00;&#x884C;</td>
+</tr>
+<tr>
+<td>b</td>
+<td>&#x56DE;&#x6EDA;&#x4E00;&#x5C4F;</td>
+</tr>
+<tr>
+<td>f</td>
+<td>&#x524D;&#x6EDA;&#x4E00;&#x5C4F;</td>
+</tr>
+<tr>
+<td>q</td>
+<td>&#x9000;&#x51FA;man&#x547D;&#x4EE4;</td>
+</tr>
+<tr>
+<td>h</td>
+<td>&#x5217;&#x51FA;&#x6240;&#x6709;&#x529F;&#x80FD;&#x952E;</td>
+</tr>
+<tr>
+<td>/word</td>
+<td>&#x641C;&#x7D22;word&#x5B57;&#x7B26;&#x4E32;</td>
+</tr>
+</tbody>
+</table>
+<p><img src="linux%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86.assets/man.jpg" alt=""></p>
+<p><strong>&#x4F7F;&#x7528; man &#x624B;&#x518C;&#x65F6;&#xFF0C;&#x6700;&#x597D;&#x6307;&#x5B9A;&#x7AE0;&#x8282;&#x53F7;&#xFF1A;</strong></p>
+<pre><code class="lang-shell">man 3 printf
+</code></pre>
+<h2 id="&#x5E38;&#x7528;&#x547D;&#x4EE4;">&#x5E38;&#x7528;&#x547D;&#x4EE4;</h2>
+<h3 id="&#x6587;&#x4EF6;&#x7BA1;&#x7406;">&#x6587;&#x4EF6;&#x7BA1;&#x7406;</h3>
+<h4 id="&#x67E5;&#x770B;&#x6587;&#x4EF6;&#x4FE1;&#x606F;&#xFF1A;ls">&#x67E5;&#x770B;&#x6587;&#x4EF6;&#x4FE1;&#x606F;&#xFF1A;ls</h4>
+<p><img src="linux%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86.assets/ls.png" alt=""></p>
+<h4 id="&#x6E05;&#x5C4F;&#xFF1A;clear">&#x6E05;&#x5C4F;&#xFF1A;clear</h4>
+<pre><code class="lang-shell">clear&#x4F5C;&#x7528;&#x4E3A;&#x6E05;&#x9664;&#x7EC8;&#x7AEF;&#x4E0A;&#x7684;&#x663E;&#x793A;(&#x7C7B;&#x4F3C;&#x4E8E;DOS&#x7684;cls&#x6E05;&#x5C4F;&#x529F;&#x80FD;)&#xFF0C;&#x4E5F;&#x53EF;&#x4F7F;&#x7528;&#x5FEB;&#x6377;&#x952E;&#xFF1A;Ctrl + l ( &#x201C;l&#x201D; &#x4E3A;&#x5B57;&#x6BCD; )&#x3002;
+</code></pre>
+<h3 id="&#x7F51;&#x7EDC;&#x8BBF;&#x95EE;">&#x7F51;&#x7EDC;&#x8BBF;&#x95EE;</h3>
+<h4 id="curl">curl</h4>
+<ul>
+<li><p>curl &#x8BBF;&#x95EE;https&#xFF0C;</p>
+<pre><code class="lang-shell">curl -X GET -k --header &apos;Accept: application/json&apos; --header &apos;Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1NjI0MDQwMjcsInVzZXJfbmFtZSI6InBsYXRmb3JtX2FkbWluIiwiYXV0aG9yaXRpZXMiOlsicGxhdGZvcm1fYXBwX2FkZEFwcCIsInBsYXRmb3JtX2FwcF9iaW5kQXV0aEdyb3VwMk1lbnUiLCJwbGF0Zm9ybV9hcHBfZGVsZXRlTWVudSIsInBsYXRmb3JtX2FwcF9wYWdlQWxsQXV0aG9yaXRpZXMiLCJwbGF0Zm9ybV9hcHBfYWRkQXV0aG9yaXR5R3JvdXAiLCJwbGF0Zm9ybV9hcHBfYWxsQXBwcyIsInBsYXRmb3JtX3VzZXIiLCJwbGF0Zm9ybV9hcHBfY2hpbGRBY2NvdW50TWFuYWdlbWVudCIsInBsYXRmb3JtX2FwcF9kZWxldGVBdXRob3JpdHkiLCJwbGF0Zm9ybV9hcHBfY3JlYXRlQ2hpbGRBY2NvdW50IiwicGxhdGZvcm1fYXBwX2FkZE1lbnUiLCJwbGF0Zm9ybV9hcHBfbWFuYWdlbWVudCIsInBsYXRmb3JtX2FwcF9jaGlsZFVzZXJzIiwicGxhdGZvcm1fYXBwX21lbnVNYW5hZ2VtZW50IiwicGxhdGZvcm1fYXBwX2JpbmRBdXRoMlVzZXIiLCJwbGF0Zm9ybV9hZG1pbiIsInBsYXRmb3JtX2FwcF9hbGxBdXRob3JpdGllcyIsInBsYXRmb3JtX2FwcF9nZXRNZW51IiwicGxhdGZvcm1fYXBwIiwicGxhdGZvcm1fdXNlcl9iYXRjaFJlZ2lzdGVyIiwicGxhdGZvcm1fYXBwX2FsbE1lbnVzIiwicGxhdGZvcm1fcmVzZXRQd2QiLCJwbGF0Zm9ybV9tZW51IiwicGxhdGZvcm1fYXBwX2JpbmRBdXRoMkF1dGhHcm91cCIsInBsYXRmb3JtX2FwcF9nZXRBcHAiLCJwbGF0Zm9ybV9hcHBfYXBwTGlzdCIsInBsYXRmb3JtX2FwcF9iaW5kQXV0aEdyb3VwMlVzZXIiLCJwbGF0Zm9ybV9hcHBfZW1wb3dlck1hbmFnZW1lbnQiLCJwbGF0Zm9ybV9hcHBfdXBkYXRlQXBwIiwicGxhdGZvcm1fYXBwX2FsbEF1dGhvcml0eUdyb3VwcyIsInBsYXRmb3JtX2F1dGhvcml0eUdyb3VwIiwicGxhdGZvcm1fYXBwX2JpbmRBdXRoMk1lbnUiLCJwbGF0Zm9ybV9saXN0UGxhdGZvcm1BcHBzIiwicGxhdGZvcm1fYXBwX2RlbGV0ZUF1dGhvcml0eUdyb3VwIiwicGxhdGZvcm1fYXBwX2F1dGhvcml0eU1hbmFnZW1lbnQiLCJwbGF0Zm9ybV9hcHBfYWRkQXV0aG9yaXR5IiwicGxhdGZvcm1fYXBwX2F1dGhvcml0eUdyb3VwTWFuYWdlbWVudCIsInBsYXRmb3JtX2FwcF9jaGFuZ2VBcHBTdGF0dXMiLCJwbGF0Zm9ybV9hcHBfdXBkYXRlQXV0aG9yaXR5R3JvdXAiLCJwbGF0Zm9ybV9hcHBfdXBkYXRlTWVudSIsInBsYXRmb3JtX2RldmVsb3BlciIsInBsYXRmb3JtX2F1dGhvcml0eSIsInBsYXRmb3JtX21hbmFnZW1lbnQiLCJwbGF0Zm9ybV9wYWdlUGxhdGZvcm1BcHBzIl0sImp0aSI6IjRlMGRiYWExLTM0ZDgtNDdjZi05NzJkLTVjYzJlNmUxYjg4ZiIsImNsaWVudF9pZCI6InNzby1nYXRld2F5Iiwic2NvcGUiOlsicmVhZCJdfQ.KkCaQvJxWcTcnJdbPJVdJkG5O9GQz0kDcuCBM-RTAEA&apos; &apos;https://mobiledev.utcook.com/offline-authority/allItemsOfDevice?productId=SF32KJ&amp;deviceId=JTPKSJQR1J&amp;clientVersion=3&apos;
+</code></pre>
+<blockquote>
+<p>&#x5FC5;&#x987B;&#x662F;&#x901A;&#x8FC7;mobiledev&#x5730;&#x5740;&#xFF0C;&#x4E0D;&#x8D70;cookie</p>
+</blockquote>
+</li>
+</ul>
+
+                                
+                                </section>
+                            
+    </div>
+    <div class="search-results">
+        <div class="has-results">
+            
+            <h1 class="search-results-title"><span class='search-results-count'></span> results matching "<span class='search-query'></span>"</h1>
+            <ul class="search-results-list"></ul>
+            
+        </div>
+        <div class="no-results">
+            
+            <h1 class="search-results-title">No results matching "<span class='search-query'></span>"</h1>
+            
+        </div>
+    </div>
+</div>
+
+                        </div>
+                    </div>
+                
+            </div>
+
+            
+                
+                <a href="makefile.html" class="navigation navigation-prev " aria-label="Previous page: makefile">
+                    <i class="fa fa-angle-left"></i>
+                </a>
+                
+                
+                <a href="shell编程.html" class="navigation navigation-next " aria-label="Next page: shell编程">
+                    <i class="fa fa-angle-right"></i>
+                </a>
+                
+            
+        
+    </div>
+
+    <script>
+        var gitbook = gitbook || [];
+        gitbook.push(function() {
+            gitbook.page.hasChanged({"page":{"title":"linux基本知识","level":"1.7.4.4","depth":3,"next":{"title":"shell编程","level":"1.7.4.5","depth":3,"path":"600-学习/630-编程总结/shell编程.md","ref":"600-学习/630-编程总结/shell编程.md","articles":[]},"previous":{"title":"makefile","level":"1.7.4.3","depth":3,"path":"600-学习/630-编程总结/makefile.md","ref":"600-学习/630-编程总结/makefile.md","articles":[]},"dir":"ltr"},"config":{"gitbook":"*","theme":"default","variables":{},"plugins":["expandable-chapters","livereload"],"pluginsConfig":{"expandable-chapters":{},"livereload":{},"highlight":{},"search":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"}},"file":{"path":"600-学习/630-编程总结/linux基础知识.md","mtime":"2019-09-18T12:03:52.949Z","type":"markdown"},"gitbook":{"version":"3.2.3","time":"2019-09-26T12:29:09.890Z"},"basePath":"../..","book":{"language":""}});
+        });
+    </script>
+</div>
+
+        
+    <script src="../../gitbook/gitbook.js"></script>
+    <script src="../../gitbook/theme.js"></script>
+    
+        
+        <script src="../../gitbook/gitbook-plugin-expandable-chapters/expandable-chapters.js"></script>
+        
+    
+        
+        <script src="../../gitbook/gitbook-plugin-livereload/plugin.js"></script>
+        
+    
+        
+        <script src="../../gitbook/gitbook-plugin-search/search-engine.js"></script>
+        
+    
+        
+        <script src="../../gitbook/gitbook-plugin-search/search.js"></script>
+        
+    
+        
+        <script src="../../gitbook/gitbook-plugin-lunr/lunr.min.js"></script>
+        
+    
+        
+        <script src="../../gitbook/gitbook-plugin-lunr/search-lunr.js"></script>
+        
+    
+        
+        <script src="../../gitbook/gitbook-plugin-sharing/buttons.js"></script>
+        
+    
+        
+        <script src="../../gitbook/gitbook-plugin-fontsettings/fontsettings.js"></script>
+        
+    
+
+    </body>
+</html>
+
