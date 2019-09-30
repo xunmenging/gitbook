@@ -150,8 +150,77 @@ strace cat foo
 - 下载gcc的工具包
 - 可以在/etc/environment文件中指定下载的gcc的bin目录
 - 修改makefile
-
 - 工具链的下载地址：www.linaro.org/downloads
+
+## g++和gcc的区别
+
+- g++会将所有的.c文件按照.cpp的方式去编译处理，除非对函数做了extern"c"修饰，不然会对函数进行别名处理。
+
+  ```c++
+  // test.h
+  #ifndef __TEST__
+  #define __TEST__
+  
+  #ifdef  __cplusplus
+    extern "C" {
+  
+  #include <math.h>
+  typedef struct _UTest UTest;
+  extern void test01();
+  }
+  #endif
+  
+  #endif
+  
+  // test.c
+  #include <stdio.h>
+  //#include "test.h"
+  
+  typedef struct _UTest
+  {
+  	int iAge;
+  }UTest;
+  
+  void test01()
+  {
+  	printf("test01,%d\n", 2);
+  	return ;
+  }
+  
+  // main.c
+  #include <stdio.h>
+  #include "test.h"
+  
+  int main(int argc, char* argv[])
+  {
+  	test01();
+  	printf("hi\n");
+  	return 0;
+  }
+  
+  ```
+
+  > 上述代码采用g++编译，会报找不到main.c:(.text+0x14): undefined reference to `test01'的错误，因为test.c在编译的时候，没有包含test.h的头文件，会以cpp的命名方式对test01进行处理，而main中包含了test.h头文件，会按照c的命名方式去查找test01函数，会找不到.
+  >
+  > nm test.c
+  >
+  > 
+
+  ```c++
+  root@ub12:/work/xcli/testArm# nm test.o
+  00000000 t $a
+  00000000 r $d
+  00000018 t $d
+  00000000 r $d
+  00000000 r $d
+  00000000 T _Z6test01v
+           U __aeabi_unwind_cpp_pr1
+           U printf
+  ```
+
+  
+
+- 如果在编译
 
 # arm体系结构
 
